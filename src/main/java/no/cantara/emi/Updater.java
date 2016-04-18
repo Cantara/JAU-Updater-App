@@ -1,34 +1,37 @@
 package no.cantara.emi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
+/**
+ * 1. Gets properties from CS
+ * -- Which file (JAU) to download
+ * -- Checksum of JAU file (or just assume mvn-repo with checksum at <filename>-md5?)
+ * -- Where to copy new JAU
+ * -- Which files/folders to copy to new JAU
+ * -- Which install file to exec (in this case .bat file and Windows)
+ * 2. Download new JAU
+ * 3. Checksum to verify correct.
+ * -- Else download again with exp backoff?
+ * 4. Unpack JAU to new dir - check that this went well?
+ * -- If install.bat script runs fine, it's likely unpacked well?
+ * 5. Copy files/folders to new dir
+ * 6. Run install.bat
+ */
 public class Updater {
-    private static void copyFolder(Path source, Path destination) {
-        List<Path> sources = null;
-        try {
-            sources = Files.walk(source).collect(toList());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        List<Path> destinations = sources.stream()
-                .map(source::relativize)
-                .map(destination::resolve)
-                .collect(toList());
+    private static final Logger log = LoggerFactory.getLogger(Updater.class);
+    private final JauProperties properties;
 
-        for (int i = 0; i < sources.size(); i++) {
-            try {
-                if (!destinations.get(i).toFile().isDirectory()) {
-                    Files.copy(sources.get(i), destinations.get(i), StandardCopyOption.REPLACE_EXISTING);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    public Updater(JauProperties properties) throws IOException {
+        this.properties = properties;
+    }
+
+    public void updateJAU() {
+        Path artifact = Util.downloadFile(properties.JAU_ARTIFACT_URL, null, null, null, "./");
+        Util.verifyChecksum(artifact, properties.JAU_ARTIFACT_CHECKSUM);
+        Util.unZipIt(artifact.toString(), properties.NEW_JAU_LOCATION);
     }
 }

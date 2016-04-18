@@ -2,11 +2,11 @@
       xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
       <modelVersion>4.0.0</modelVersion>
       <groupId>no.cantara.emi</groupId>
-      <artifactId>jau-updater</artifactId>
+      <artifactId>jau-updater-app</artifactId>
       <packaging>jar</packaging>
 
       <version>1.0-SNAPSHOT</version>
-      <name>jau-updater</name>
+      <name>jau-updater-app</name>
 
       <parent>
         <groupId>no.cantara.emi</groupId>

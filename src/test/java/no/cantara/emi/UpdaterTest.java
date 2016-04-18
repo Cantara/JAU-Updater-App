@@ -1,21 +1,25 @@
 package no.cantara.emi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Properties;
 
-/**
- * Created by andeero on 16/04/16.
- */
 public class UpdaterTest {
+    private static final Logger log = LoggerFactory.getLogger(App.class);
 
     @Test
-    public void shouldCopyConfig() {
-        Path testFolder = Paths
-        Path source = Paths.get("config_override");
-        Path dest = Paths.get("../new-jau/java-auto-update-0.4.1/config_override");
-
-        Updater updater = new Updater();
+    public void shouldUpdateJau() throws IOException, URISyntaxException {
+        URL url = getClass().getClassLoader().getResource("validconfig.properties");
+        JauProperties props = Util.getAndVerifyProperties(new File(url.toURI()));
+        Updater updater = new Updater(props);
+        updater.updateJAU();
     }
 }

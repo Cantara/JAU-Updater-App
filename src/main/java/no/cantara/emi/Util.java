@@ -8,17 +8,21 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.List;
+import java.util.Properties;
 
-/**
- * Created by andeero on 14/04/16.
- */
-public class DownloadUtil {
-    private static final Logger log = LoggerFactory.getLogger(DownloadUtil.class);
+import static java.util.stream.Collectors.toList;
+
+public class Util {
+    private static final Logger log = LoggerFactory.getLogger(Util.class);
 
     /**
      * http://www.codejava.net/java-se/networking/use-httpurlconnection-to-download-file-from-an-http-url
@@ -114,5 +118,105 @@ public class DownloadUtil {
         }
     }
 
+    private static void copyFolder(Path source, Path destination) {
+        List<Path> sources = null;
+        try {
+            sources = Files.walk(source).collect(toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        List<Path> destinations = sources.stream()
+                .map(source::relativize)
+                .map(destination::resolve)
+                .collect(toList());
+
+        for (int i = 0; i < sources.size(); i++) {
+            try {
+                if (!destinations.get(i).toFile().isDirectory()) {
+                    Files.copy(sources.get(i), destinations.get(i), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    public static Properties readProperties(File configFile) throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(configFile));
+        return properties;
+    }
+
+    public static boolean verifyChecksum(Path artifact, String jauArtifactChecksum) {
+        try {
+            MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+            String actualChecksum = getFileChecksum(md5Digest, artifact.toFile());
+            if (actualChecksum.equals(jauArtifactChecksum)) {
+                return true;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            log.error("MD5 is not an algorithm?");
+        } catch (IOException e) {
+            log.error("Could not read file {}", artifact.toString());
+        }
+        return false;
+    }
+
+    /**
+     * http://howtodoinjava.com/core-java/io/how-to-generate-sha-or-md5-file-checksum-hash-in-java/
+     */
+    public static String getFileChecksum(MessageDigest digest, File file) throws IOException
+    {
+        //Get file input stream for reading the file content
+        FileInputStream fis = new FileInputStream(file);
+
+        //Create byte array to read data in chunks
+        byte[] byteArray = new byte[1024];
+        int bytesCount = 0;
+
+        //Read file data and update in message digest
+        while ((bytesCount = fis.read(byteArray)) != -1) {
+            digest.update(byteArray, 0, bytesCount);
+        };
+
+        //close the stream; We don't need it now.
+        fis.close();
+
+        //Get the hash's bytes
+        byte[] bytes = digest.digest();
+
+        //This bytes[] has bytes in decimal format;
+        //Convert it to hexadecimal format
+        StringBuilder sb = new StringBuilder();
+        for(int i=0; i< bytes.length ;i++)
+        {
+            sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        //return complete hash
+        return sb.toString();
+    }
+
+    public static JauProperties getAndVerifyProperties(File configFile) throws IOException {
+        Properties properties = Util.readProperties(configFile);
+
+        String jauArtifact = properties.getProperty("jauArtifactURL");
+        String jauArtifactChecksum = properties.getProperty("jauArtifactChecksum");
+        String newJAULocation = properties.getProperty("newJAULocation");
+        String jauFolderName = properties.getProperty("jauFolderName");
+        String filesToCopy = properties.getProperty("filesToCopy");
+
+        if (jauArtifact == null
+                || jauArtifactChecksum == null
+                || newJAULocation == null
+                || jauFolderName == null
+                || filesToCopy == null) {
+            log.error("Invalid config file. Fall back to a default?");
+            throw new IOException("Invalid config file. Does not contain valid values");
+        }
+
+        return new JauProperties(jauArtifact, jauArtifactChecksum, newJAULocation, jauFolderName, filesToCopy);
+    }
 
 }
