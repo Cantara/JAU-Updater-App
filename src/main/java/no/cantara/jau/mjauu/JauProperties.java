@@ -1,4 +1,4 @@
-package no.cantara.emi;
+package no.cantara.jau.mjauu;
 
 public class JauProperties {
     public final String JAU_ARTIFACT_URL;
