@@ -14,6 +14,7 @@ public class App {
         String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
         command = new String[]{"bin/java-auto-update.bat", "stop"};
         try {
+            System.out.println("Run command: " + command);
             Process process = new ProcessBuilder(command).start();
             InputStream inputStream = process.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
@@ -22,6 +23,7 @@ public class App {
             while ((line = bufferedReader.readLine()) != null) {
                 System.out.println(line);
             }
+            System.out.println("Done.");
         } catch(Exception ex) {
             System.out.println("Exception : "+ex);
         }
