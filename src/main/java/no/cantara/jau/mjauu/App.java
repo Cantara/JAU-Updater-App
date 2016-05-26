@@ -3,39 +3,78 @@ package no.cantara.jau.mjauu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
+import java.time.Instant;
 
 public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
+    PrintWriter writer = null;
+    FileWriter fw = null;
+    BufferedWriter bw = null;
+
     public static void main(String[] args) {
+        App app = new App();
+        app.printStatus("Start");
+        //app.stopService("java-auto-update");
+        do {
+            app.printStatus("Continue:");
+            app.stopService("java-auto-update");
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        } while (true);
+    }
+
+    private void stopService(String serviceId) {
         String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
-        command = new String[]{"bin/java-auto-update.bat", "stop"};
-        PrintWriter writer = null;
+        command = new String[]{"cmd", "/c","net", "stop", serviceId};
 
         try {
-            writer = new PrintWriter("hei2.txt", "UTF-8");
-            log.info("Run command: " + buildString(command));
-            writer.println("Run command: " + buildString(command));
+            printStatus("Run command: " + buildString(command));
             Process process = new ProcessBuilder(command).start();
             InputStream inputStream = process.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-            log.info(line);
-            writer.println(line);
+                log.info(line);
+                printStatus(line);
+            }
+            log.info("Done.");
+            printStatus("Done.");
+        } catch(Exception ex) {
+            log.warn("Exception : "+ex);
+            writer.print("Exception: " + ex.toString());
         }
-        log.info("Done.");
-        writer.println("Done.");
+    }
+
+    void printStatus(String status){
+
+
+        try {
+            fw = new FileWriter("hei2.txt", true);
+            bw = new BufferedWriter(fw);
+            writer = new PrintWriter(bw); //new PrintWriter("hei2.txt", "UTF-8");
+
+            writer.println(status + Instant.now());
         } catch(Exception ex) {
             log.warn("Exception : "+ex);
             writer.print("Exception: " + ex.toString());
         } finally {
             writer.close();
+            try {
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
