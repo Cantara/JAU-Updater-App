@@ -6,20 +6,20 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.time.Instant;
 
-public class App {
-    private static final Logger log = LoggerFactory.getLogger(App.class);
+public class Main {
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     PrintWriter writer = null;
     FileWriter fw = null;
     BufferedWriter bw = null;
 
     public static void main(String[] args) {
-        App app = new App();
-        app.printStatus("Start");
-        //app.stopService("java-auto-update");
+        Main main = new Main();
+        main.printStatus("Start");
+        //main.stopService("java-auto-update");
         do {
-            app.printStatus("Continue:");
-            app.stopService("java-auto-update");
+            main.printStatus("Continue:");
+            main.stopService("java-auto-update");
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {

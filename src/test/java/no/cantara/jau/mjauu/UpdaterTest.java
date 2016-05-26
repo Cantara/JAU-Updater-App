@@ -10,7 +10,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public class UpdaterTest {
-    private static final Logger log = LoggerFactory.getLogger(App.class);
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     @Test
     public void shouldUpdateJau() throws IOException, URISyntaxException {
