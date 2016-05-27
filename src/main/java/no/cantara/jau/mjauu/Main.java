@@ -11,34 +11,42 @@ import java.time.Instant;
 import java.util.Properties;
 
 public class Main {
+    public static final String PROPERTIES_FILE_NAME = "config.properties";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private final Properties properties = new Properties();
+    private final String version;
 
     PrintWriter writer = null;
     FileWriter fw = null;
     BufferedWriter bw = null;
 
     public static void main(String[] args) {
-        Main main = new Main();
-        main.printStatus("Start");
+        Main main;
+
+
         //main.stopService("java-auto-update");
 
         try {
+            main = new Main();
+            log.info("Start");
             main.doUpdateProcess();
         } catch (URISyntaxException e) {
             log.error("Failed to update", e);
+        } catch (IOException e) {
+            log.error("Failed to load properties file {}", PROPERTIES_FILE_NAME);
         }
 
     }
 
-    public Main() {
+    public Main() throws IOException {
+        InputStream inStream = new FileInputStream(PROPERTIES_FILE_NAME);//zipUri.openStream();
+        properties.load(inStream);
+        this.version = properties.getProperty("version");
 
     }
 
     void doUpdateProcess() throws URISyntaxException {
-        Properties props = new Properties();
-        props.setProperty("jau.zipfile", "java-auto-update-0.8-beta-5-SNAPSHOT.zip");
-        props.setProperty("jau.extractTo", "tmp");
-        File zipFile = findZip("java-auto-update-0.8-beta-5-SNAPSHOT.zip");
+        File zipFile = findZip("java-auto-update-"+ version + ".zip");
         File toDir = findToDir("tmp");
         JauUpdater jauUpdater = new JauUpdater(zipFile, toDir);
         boolean updatedOk = jauUpdater.extractZip();
