@@ -4,7 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.time.Instant;
+import java.util.Properties;
 
 public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
@@ -17,15 +21,55 @@ public class Main {
         Main main = new Main();
         main.printStatus("Start");
         //main.stopService("java-auto-update");
+
+        try {
+            main.doUpdateProcess();
+        } catch (URISyntaxException e) {
+            log.error("Failed to update", e);
+        }
+
+    }
+
+    public Main() {
+
+    }
+
+    void doUpdateProcess() throws URISyntaxException {
+        Properties props = new Properties();
+        props.setProperty("jau.zipfile", "java-auto-update-0.8-beta-5-SNAPSHOT.zip");
+        props.setProperty("jau.extractTo", "tmp");
+        File zipFile = findZip("java-auto-update-0.8-beta-5-SNAPSHOT.zip");
+        File toDir = findToDir("tmp");
+        JauUpdater jauUpdater = new JauUpdater(zipFile, toDir);
+        boolean updatedOk = jauUpdater.extractZip();
         do {
-            main.printStatus("Continue:");
-            main.stopService("java-auto-update");
+            printStatus("Continue:");
+            stopService("java-auto-update");
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         } while (true);
+    }
+
+    private File findToDir(String toDirName) {
+        File toDir = new File(toDirName);
+        return toDir;
+    }
+
+    private File findZip(String zipPath) throws URISyntaxException {
+        URL zipSource = this.getClass().getClassLoader().getResource(zipPath);
+
+        File zipFile;
+        if (zipSource != null) {
+            URI zipUri = new URI(zipSource.toString());
+            zipFile = new File(zipUri);
+        } else {
+            zipFile = new File(zipPath);
+        }
+
+        return zipFile;
     }
 
     private void stopService(String serviceId) {
