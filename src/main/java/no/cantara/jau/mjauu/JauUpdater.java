@@ -38,4 +38,29 @@ public class JauUpdater {
         }
         return isExtracted;
     }
+
+    public boolean backupJau() {
+        //TODO implement backup
+        return false;
+    }
+
+    public boolean uninstallJau() {
+        return false;
+    }
+
+    public boolean updateConfig() {
+        return false;
+    }
+
+    public boolean installJau() {
+        return false;
+    }
+
+    public boolean startJau() {
+        return false;
+    }
+
+    public boolean verifyUpgrade() {
+        return false;
+    }
 }
