@@ -103,7 +103,7 @@ public class Main {
         }
         issueEvent(3,Event.UninstallOk);
 
-        boolean configUpdatedOk = jauUpdater.updateConfig();
+        boolean configUpdatedOk = jauUpdater.updateConfig(version);
         if (!configUpdatedOk){
             issueEvent(4,Event.ConfigUpdatedFailed);
             return updatedOk;

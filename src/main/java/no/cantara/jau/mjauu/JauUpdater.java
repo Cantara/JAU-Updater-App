@@ -71,16 +71,31 @@ public class JauUpdater {
         JauServiceCommander serviceCommander = new JauServiceCommander(JAU_SERVICE_NAME);
         boolean uninstalledOk = false;
         boolean serviceRemoved = serviceCommander.uninstallService();
+        log.info("uninstallJau: serviceRemoved {}", serviceRemoved);
         if (serviceRemoved) {
             if (jauBackup != null) {
                 uninstalledOk = jauBackup.removeFilesAndDirectories();
+                log.info("uninstallJau: uninstalled {}", uninstalledOk);
             }
         }
-        return serviceRemoved;
+        return uninstalledOk;
     }
 
-    public boolean updateConfig() {
-        return false;
+    public boolean updateConfig(String version) {
+        boolean copyZipContent = false;
+        File newJau = new File(toDir + File.separator + version);
+        if (toDir.exists() && newJau.exists()) {
+
+            try {
+                jauBackup.copy(newJau, jauDir);
+                copyZipContent = true;
+            } catch (Exception e) {
+                log.warn("Failed to copy files from {} to {}", newJau,jauDir);
+            }
+        } else {
+            log.warn("Missing directory. Either JAU dir {} or new JAU dir {} are missing", jauDir, newJau);
+        }
+        return copyZipContent;
     }
 
     public boolean installJau() {
