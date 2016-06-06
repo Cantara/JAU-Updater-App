@@ -39,9 +39,6 @@ public class JauBackup {
         backup("install.bat");
         backup("unzip.exe");
         backup("wget.exe");
-        backup("xx");
-
-
 
         return backupOk;
     }
