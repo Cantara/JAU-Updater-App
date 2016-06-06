@@ -76,6 +76,12 @@ public class Main {
         File zipFile = findZip("java-auto-update-"+ version + ".zip");
         File toDir = findToDir("tmp");
         JauUpdater jauUpdater = new JauUpdater(zipFile, toDir);
+        boolean serviceStopedOk = jauUpdater.stopJau();
+        if (!serviceStopedOk) {
+            issueEvent(1,Event.JauStopFailed);
+            return updatedOk;
+        }
+        issueEvent(1,Event.JauStopOk);
         boolean unzipedOk = jauUpdater.extractZip();
         if (!unzipedOk){
             issueEvent(1,Event.UnzipFailed);
@@ -96,6 +102,7 @@ public class Main {
             return updatedOk;
         }
         issueEvent(3,Event.UninstallOk);
+
         boolean configUpdatedOk = jauUpdater.updateConfig();
         if (!configUpdatedOk){
             issueEvent(4,Event.ConfigUpdatedFailed);
@@ -156,63 +163,7 @@ public class Main {
         return zipFile;
     }
 
-    private void stopService(String serviceId) {
-        String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
-        command = new String[]{"cmd", "/c","net", "stop", serviceId};
 
-        try {
-            printStatus("Run command: " + buildString(command));
-            Process process = new ProcessBuilder(command).start();
-            InputStream inputStream = process.getInputStream();
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                log.info(line);
-                printStatus(line);
-            }
-            log.info("Done.");
-            printStatus("Done.");
-        } catch(Exception ex) {
-            log.warn("Exception : "+ex);
-            writer.print("Exception: " + ex.toString());
-        }
-    }
-
-    void printStatus(String status){
-
-
-        try {
-            fw = new FileWriter("hei2.txt", true);
-            bw = new BufferedWriter(fw);
-            writer = new PrintWriter(bw); //new PrintWriter("hei2.txt", "UTF-8");
-
-            writer.println(status + Instant.now());
-        } catch(Exception ex) {
-            log.warn("Exception : "+ex);
-            writer.print("Exception: " + ex.toString());
-        } finally {
-            writer.close();
-            try {
-                bw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static String buildString(String[] command) {
-        StringBuilder builder = new StringBuilder();
-        for(String s : command) {
-            builder.append(" " +s);
-        }
-        return builder.toString();
-    }
 
     void issueEvent(int eventCount, Event event) {
         ExtractedEventsStore eventsStore = new ExtractedEventsStore();

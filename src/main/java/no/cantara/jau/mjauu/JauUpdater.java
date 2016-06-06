@@ -11,6 +11,7 @@ import java.io.IOException;
  */
 public class JauUpdater {
     private static final Logger log = LoggerFactory.getLogger(JauUpdater.class);
+    private static final String JAU_SERVICE_NAME = "java-auto-update";
 
     //URL url = getClass().getClassLoader().getResource("validconfig.properties");
     //JauProperties props = Util.getAndVerifyProperties(new File(url.toURI()));
@@ -18,6 +19,7 @@ public class JauUpdater {
     private final File toDir;
     private final File backupDir;
     private final File jauDir;
+    private final JauServiceCommander serviceCommander;
 
 
     public JauUpdater(File zipFile, File toDir) {
@@ -28,9 +30,16 @@ public class JauUpdater {
         }
         backupDir = new File("backup");
         jauDir = new File("");
+        serviceCommander = new JauServiceCommander(JAU_SERVICE_NAME);
     }
 
 
+    public boolean stopJau(){
+
+        boolean serviceStoped = serviceCommander.stopService();
+
+        return serviceStoped;
+    }
     public boolean extractZip() {
         boolean isExtracted = false;
         UnZip unZip = new UnZip();
@@ -55,10 +64,12 @@ public class JauUpdater {
             backupOk = false;
         }
         return backupOk;
-        //TODO implement backup
     }
 
     public boolean uninstallJau() {
+        JauServiceCommander serviceCommander = new JauServiceCommander(JAU_SERVICE_NAME);
+        boolean serviceStoped = serviceCommander.stopService();
+
         return false;
     }
 
