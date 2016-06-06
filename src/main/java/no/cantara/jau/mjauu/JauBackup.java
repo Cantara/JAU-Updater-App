@@ -96,4 +96,29 @@ public class JauBackup {
         }
     }
 
+    public boolean removeFilesAndDirectories() {
+        boolean allRemoved = false;
+        if (!backupDir.canRead()) {
+            throw new SecurityException("Not able to write to " + backupDir.toString());
+        }
+
+        try {
+            delete("bin");
+            delete("etc");
+            delete("lib");
+            delete("install.bat");
+            allRemoved = true;
+        } catch (Exception e) {
+            log.warn("Failed to remove file and directories. Reason {}", e.getMessage());
+        }
+
+        return allRemoved;
+    }
+
+    private void delete(String fileOrDir) {
+        File toBeDeleted = new File(fileOrDir);
+        if (toBeDeleted.exists()) {
+            toBeDeleted.delete();
+        }
+    }
 }

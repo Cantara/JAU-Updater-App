@@ -20,6 +20,7 @@ public class JauUpdater {
     private final File backupDir;
     private final File jauDir;
     private final JauServiceCommander serviceCommander;
+    JauBackup jauBackup = null;
 
 
     public JauUpdater(File zipFile, File toDir) {
@@ -54,7 +55,7 @@ public class JauUpdater {
 
     public boolean backupJau() {
         boolean backupOk = false;
-        JauBackup jauBackup;
+
         try {
             jauBackup = new JauBackup(jauDir,backupDir);
             backupOk = jauBackup.performBackup();
@@ -68,8 +69,13 @@ public class JauUpdater {
 
     public boolean uninstallJau() {
         JauServiceCommander serviceCommander = new JauServiceCommander(JAU_SERVICE_NAME);
+        boolean uninstalledOk = false;
         boolean serviceRemoved = serviceCommander.uninstallService();
-
+        if (serviceRemoved) {
+            if (jauBackup != null) {
+                uninstalledOk = jauBackup.removeFilesAndDirectories();
+            }
+        }
         return serviceRemoved;
     }
 
