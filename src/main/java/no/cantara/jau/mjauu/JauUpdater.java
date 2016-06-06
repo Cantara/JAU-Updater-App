@@ -68,9 +68,9 @@ public class JauUpdater {
 
     public boolean uninstallJau() {
         JauServiceCommander serviceCommander = new JauServiceCommander(JAU_SERVICE_NAME);
-        boolean serviceStoped = serviceCommander.stopService();
+        boolean serviceRemoved = serviceCommander.uninstallService();
 
-        return false;
+        return serviceRemoved;
     }
 
     public boolean updateConfig() {

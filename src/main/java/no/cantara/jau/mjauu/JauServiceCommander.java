@@ -70,6 +70,53 @@ public class JauServiceCommander  {
         return stopedOk;
     }
 
+    protected  boolean uninstallService(){
+        boolean isUninstalledOk = false;
+        String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
+        //command = new String[]{"cmd", "/c","net", "stop", serviceId};
+        command = new String[]{"sc", "delete", serviceId};
+        try {
+            log.info("Run command: {}" , buildString(command));
+            Process process = new ProcessBuilder(command).start();
+            InputStream inputStream = process.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                log.info("RemoveServiece {}",line);
+                //printStatus(line);
+                boolean isVerified = verifyServiceIsUninstalled(line);
+                if (isVerified){
+                    isUninstalledOk = true;
+                }
+            }
+            log.info("Finshed waiting for Service removal. Removed {}", isUninstalledOk);
+
+            //printStatus("Done.");
+        } catch(Exception ex) {
+            log.warn("Exception : "+ex);
+            // writer.print("Exception: " + ex.toString());
+        }
+
+        return isUninstalledOk;
+    }
+
+    private boolean verifyServiceIsUninstalled(String line) {
+            boolean removedOk = false;
+            if (line.contains("stoppet")){
+                removedOk = true;
+            } else if (line.contains("stoped")) {
+                removedOk = true;
+            } else if(line.contains("The specified service does not exist as an installed service")){
+                log.info("{} is not installed.", serviceId);
+                removedOk = true;
+            } else if(line.contains("STATE") && line.contains("STOPPED")){
+                log.info("{} is stoped.", serviceId);
+                removedOk = true;
+            }
+            return removedOk;
+    }
+
     /*
     void printStatus(String status){
 
