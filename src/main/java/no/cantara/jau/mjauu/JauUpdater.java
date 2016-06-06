@@ -16,6 +16,8 @@ public class JauUpdater {
     //JauProperties props = Util.getAndVerifyProperties(new File(url.toURI()));
     private final File zipFile;
     private final File toDir;
+    private final File backupDir;
+    private final File jauDir;
 
 
     public JauUpdater(File zipFile, File toDir) {
@@ -24,6 +26,8 @@ public class JauUpdater {
         if (!zipFile.exists()){
             throw new IllegalArgumentException("ZipFile " + zipFile.toString() + " does not exist.");
         }
+        backupDir = new File("backup");
+        jauDir = new File("");
     }
 
 
@@ -40,8 +44,18 @@ public class JauUpdater {
     }
 
     public boolean backupJau() {
+        boolean backupOk = false;
+        JauBackup jauBackup;
+        try {
+            jauBackup = new JauBackup(jauDir,backupDir);
+            backupOk = jauBackup.performBackup();
+            backupOk = true;
+        } catch (SecurityException se) {
+            log.warn("Could not create backup directory: {}", backupDir.toString());
+            backupOk = false;
+        }
+        return backupOk;
         //TODO implement backup
-        return false;
     }
 
     public boolean uninstallJau() {

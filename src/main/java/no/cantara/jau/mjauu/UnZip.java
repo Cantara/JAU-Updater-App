@@ -85,12 +85,11 @@ public class UnZip {
                 }
                 fos.close();
             }
-            log.trace("OK!");
             ze = zis.getNextEntry();
         }
         zis.closeEntry();
         zis.close();
 
-        log.trace( zipFile + " unzipped successfully");
+        log.trace( "OK! - {}  unzipped successfully", zipFile);
     }
 }

@@ -35,14 +35,15 @@ public class Main {
     public static void main(String[] args) {
         Main main = null;
 
-
-        //main.stopService("java-auto-update");
-
         try {
             main = new Main();
             main.updateStatus(Started);
-            main.doUpdateProcess();
-            main.updateStatus(State.Success);
+            boolean updatedOk = main.doUpdateProcess();
+            if (updatedOk) {
+                main.updateStatus(State.Success);
+            } else {
+                main.updateStatus(State.Failure);
+            }
         } catch (URISyntaxException e) {
             log.error("Failed to update", e);
             main.updateStatus(State.Failure);
@@ -70,55 +71,58 @@ public class Main {
 
     }
 
-    void doUpdateProcess() throws URISyntaxException {
+    boolean doUpdateProcess() throws URISyntaxException {
+        boolean updatedOk = false;
         File zipFile = findZip("java-auto-update-"+ version + ".zip");
         File toDir = findToDir("tmp");
         JauUpdater jauUpdater = new JauUpdater(zipFile, toDir);
         boolean unzipedOk = jauUpdater.extractZip();
         if (!unzipedOk){
             issueEvent(1,Event.UnzipFailed);
-            return;
+            return updatedOk;
         }
         issueEvent(1,Event.UnzipOk);
 
         boolean backupJauOk = jauUpdater.backupJau();
         if (!backupJauOk){
             issueEvent(2,Event.BackupJauFailed);
-            return;
+            return updatedOk;
         }
         issueEvent(2,Event.BackupJauOk);
 
         boolean unistallOk = jauUpdater.uninstallJau();
         if (!unistallOk){
             issueEvent(3,Event.UninstallFailed);
-            return;
+            return updatedOk;
         }
         issueEvent(3,Event.UninstallOk);
         boolean configUpdatedOk = jauUpdater.updateConfig();
         if (!configUpdatedOk){
             issueEvent(4,Event.ConfigUpdatedFailed);
-            return;
+            return updatedOk;
         }
         issueEvent(4,Event.ConfigUpdatedOk);
         boolean jauInstalledOk = jauUpdater.installJau();
         if (!jauInstalledOk){
             issueEvent(5,Event.JauInstallFailed);
-            return;
+            return updatedOk;
         }
         issueEvent(5,Event.JauInstalledOk);
         boolean jauStartedOk = jauUpdater.startJau();
         if (!jauStartedOk){
             issueEvent(6,Event.JauInstallFailed);
-            return;
+            return updatedOk;
         }
         issueEvent(6,Event.JauInstalledOk);
 
         boolean upgradeVerified = jauUpdater.verifyUpgrade();
         if (!upgradeVerified){
             updateStatus(Failure);
-            return;
+            return updatedOk;
         }
         updateStatus(Success);
+        updatedOk = true;
+        return unistallOk;
 
         /*
         do {
