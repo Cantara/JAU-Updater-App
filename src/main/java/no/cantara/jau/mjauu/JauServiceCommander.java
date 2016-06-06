@@ -153,4 +153,14 @@ public class JauServiceCommander  {
         }
         return builder.toString();
     }
+
+    public boolean installService() {
+      //TODO
+    return false;
+    }
+
+    public boolean startService() {
+        //TODO sc start service-id
+        return false;
+    }
 }

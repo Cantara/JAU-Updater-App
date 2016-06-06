@@ -100,15 +100,25 @@ public class JauUpdater {
         } else {
             log.warn("Missing JAU directory [{}].", jauDir);
         }
-        return copyZipContent;
+
+        boolean newConfigWritten = false;
+        if (copyZipContent){
+            //FIXME copy correct content;
+        }
+        return newConfigWritten;
     }
 
     public boolean installJau() {
-        return false;
+        boolean isInstalled = false;
+        isInstalled = serviceCommander.installService();
+
+        return isInstalled;
     }
 
     public boolean startJau() {
-        return false;
+        boolean isStarted = false;
+        isStarted = serviceCommander.startService();
+        return isStarted;
     }
 
     public boolean verifyUpgrade() {

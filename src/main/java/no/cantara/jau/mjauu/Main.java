@@ -52,6 +52,8 @@ public class Main {
             main.updateStatus(State.Failure);
         }
         main.issueEvent(99,Event.MjauuFinished);
+        log.info("Finished");
+
 
 
     }
