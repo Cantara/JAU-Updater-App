@@ -1,5 +1,9 @@
 package no.cantara.jau.mjauu;
 
+import no.cantara.cs.client.ConfigServiceClient;
+import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.dto.ClientConfig;
+import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.jau.mjauu.state.Event;
 import no.cantara.jau.mjauu.state.State;
 import org.slf4j.Logger;
@@ -10,6 +14,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import static no.cantara.jau.mjauu.state.State.*;
@@ -20,10 +26,12 @@ public class Main {
     private final Properties properties = new Properties();
     private final String version;
     private Enum status = null;
+    private ConfigServiceClient configServiceClient;
 
     PrintWriter writer = null;
     FileWriter fw = null;
     BufferedWriter bw = null;
+    private String clientId;
 
     public static void main(String[] args) {
         Main main = null;
@@ -43,7 +51,7 @@ public class Main {
             log.error("Failed to load properties file {}", PROPERTIES_FILE_NAME);
             main.updateStatus(State.Failure);
         }
-        main.issueEvent(Event.MjauuFinished);
+        main.issueEvent(99,Event.MjauuFinished);
 
 
     }
@@ -52,6 +60,10 @@ public class Main {
         InputStream inStream = new FileInputStream(PROPERTIES_FILE_NAME);//zipUri.openStream();
         properties.load(inStream);
         this.version = properties.getProperty("version");
+        String configServiceUrl = properties.getProperty("configServiceUrl");
+        String configServiceUsername = properties.getProperty("configServiceUsername");
+        String configServicePassword = properties.getProperty("configServicePassword");
+        configServiceClient = new ConfigServiceClient(configServiceUrl, configServiceUsername, configServicePassword);
 
     }
 
@@ -61,42 +73,42 @@ public class Main {
         JauUpdater jauUpdater = new JauUpdater(zipFile, toDir);
         boolean unzipedOk = jauUpdater.extractZip();
         if (!unzipedOk){
-            issueEvent(Event.UnzipFailed);
+            issueEvent(1,Event.UnzipFailed);
             return;
         }
-        issueEvent(Event.UnzipOk);
+        issueEvent(1,Event.UnzipOk);
 
         boolean backupJauOk = jauUpdater.backupJau();
         if (!backupJauOk){
-            issueEvent(Event.BackupJauFailed);
+            issueEvent(2,Event.BackupJauFailed);
             return;
         }
-        issueEvent(Event.BackupJauOk);
+        issueEvent(2,Event.BackupJauOk);
 
         boolean unistallOk = jauUpdater.uninstallJau();
         if (!unistallOk){
-            issueEvent(Event.UninstallFailed);
+            issueEvent(3,Event.UninstallFailed);
             return;
         }
-        issueEvent(Event.UninstallOk);
+        issueEvent(3,Event.UninstallOk);
         boolean configUpdatedOk = jauUpdater.updateConfig();
         if (!configUpdatedOk){
-            issueEvent(Event.ConfigUpdatedFailed);
+            issueEvent(4,Event.ConfigUpdatedFailed);
             return;
         }
-        issueEvent(Event.ConfigUpdatedOk);
+        issueEvent(4,Event.ConfigUpdatedOk);
         boolean jauInstalledOk = jauUpdater.installJau();
         if (!jauInstalledOk){
-            issueEvent(Event.JauInstallFailed);
+            issueEvent(5,Event.JauInstallFailed);
             return;
         }
-        issueEvent(Event.JauInstalledOk);
+        issueEvent(5,Event.JauInstalledOk);
         boolean jauStartedOk = jauUpdater.startJau();
         if (!jauStartedOk){
-            issueEvent(Event.JauInstallFailed);
+            issueEvent(6,Event.JauInstallFailed);
             return;
         }
-        issueEvent(Event.JauInstalledOk);
+        issueEvent(6,Event.JauInstalledOk);
 
         boolean upgradeVerified = jauUpdater.verifyUpgrade();
         if (!upgradeVerified){
@@ -195,9 +207,21 @@ public class Main {
         return builder.toString();
     }
 
-    void issueEvent(Event event){
-        //TODO forward to ConfigService
-        log.info("Event; {}", event);
+    void issueEvent(int eventCount, Event event) {
+        ExtractedEventsStore eventsStore = new ExtractedEventsStore();
+        List<no.cantara.cs.dto.event.Event> events = new ArrayList<>();
+        events.add(new no.cantara.cs.dto.event.Event(eventCount, event.name()));
+        eventsStore.addEvents(events);
+
+        Properties applicationState = configServiceClient.getApplicationState();
+        try {
+            ClientConfig clientConfig = configServiceClient.checkForUpdate(getClientId(),
+                    new CheckForUpdateRequest(applicationState.getProperty(ConfigServiceClient.LAST_CHANGED)));
+            log.info("Forwarded Event {} to configService.", event);
+        } catch (IOException e) {
+            log.warn("Failed to issue update Event to ConfigService");
+            //FIXME how to handle this error.
+        }
     }
 
     void updateStatus(State status) {
@@ -205,19 +229,23 @@ public class Main {
         switch (status){
             case Started:
                 log.info("Status;{}" + Started);
-                issueEvent(Event.MjauuStarted);
+                issueEvent(0,Event.MjauuStarted);
                 break;
             case Success:
                 log.info("Status;{}" + Success);
-                issueEvent(Event.UpgradSuccess);
+                issueEvent(99,Event.UpgradeSuccess);
                 break;
             case Failure:
                 log.info("Status;{}" + Failure);
-                issueEvent(Event.UpgradeFailed);
+                issueEvent(98,Event.UpgradeFailed);
                 break;
 
         }
 
 
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 }
