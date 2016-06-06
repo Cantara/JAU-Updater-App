@@ -55,7 +55,7 @@ public class JauBackup {
     public boolean copy(File sourceLocation, File targetLocation)  {
         boolean copyOk = false;
         try {
-            log.info("Backup dir {}", sourceLocation);
+            log.info("Copy {}, to {}", sourceLocation, targetLocation);
             if (sourceLocation.isDirectory()) {
                 copyDirectory(sourceLocation, targetLocation);
             } else {

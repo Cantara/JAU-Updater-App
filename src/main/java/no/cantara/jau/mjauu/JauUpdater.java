@@ -30,7 +30,7 @@ public class JauUpdater {
             throw new IllegalArgumentException("ZipFile " + zipFile.toString() + " does not exist.");
         }
         backupDir = new File("backup");
-        jauDir = new File("");
+        jauDir = new File(".");
         serviceCommander = new JauServiceCommander(JAU_SERVICE_NAME);
     }
 
@@ -81,19 +81,24 @@ public class JauUpdater {
         return uninstalledOk;
     }
 
-    public boolean updateConfig(String version) {
+    public boolean updateConfig(String artifactId, String version) {
         boolean copyZipContent = false;
-        File newJau = new File(toDir + File.separator + version);
-        if (toDir.exists() && newJau.exists()) {
+        File newJau = new File(toDir + File.separator + "java-auto-update" +"-" +version);
+        log.info("Copy files from backup {} to JAU {}", newJau,jauDir);
+        if (jauDir.exists() ) {
+            if ( newJau.exists()) {
 
-            try {
-                jauBackup.copy(newJau, jauDir);
-                copyZipContent = true;
-            } catch (Exception e) {
-                log.warn("Failed to copy files from {} to {}", newJau,jauDir);
+                try {
+                    jauBackup.copy(newJau, jauDir);
+                    copyZipContent = true;
+                } catch (Exception e) {
+                    log.warn("Failed to copy files from {} to {}", newJau, jauDir);
+                }
+            } else {
+                log.warn("Missing newJau directory [{}]", newJau);
             }
         } else {
-            log.warn("Missing directory. Either JAU dir {} or new JAU dir {} are missing", jauDir, newJau);
+            log.warn("Missing JAU directory [{}].", jauDir);
         }
         return copyZipContent;
     }

@@ -103,7 +103,7 @@ public class Main {
         }
         issueEvent(3,Event.UninstallOk);
 
-        boolean configUpdatedOk = jauUpdater.updateConfig(version);
+        boolean configUpdatedOk = jauUpdater.updateConfig(artifactId,version);
         if (!configUpdatedOk){
             issueEvent(4,Event.ConfigUpdatedFailed);
             return updatedOk;
@@ -129,7 +129,7 @@ public class Main {
         }
         updateStatus(Success);
         updatedOk = true;
-        return unistallOk;
+        return updatedOk;
 
         /*
         do {
