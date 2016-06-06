@@ -110,8 +110,8 @@ public class JauServiceCommander  {
             } else if(line.contains("The specified service does not exist as an installed service")){
                 log.info("{} is not installed.", serviceId);
                 removedOk = true;
-            } else if(line.contains("STATE") && line.contains("STOPPED")){
-                log.info("{} is stoped.", serviceId);
+            } else if(line.contains("DeleteService") && line.contains("SUCCESS")){
+                log.info("{} is removed.", serviceId);
                 removedOk = true;
             }
             return removedOk;
