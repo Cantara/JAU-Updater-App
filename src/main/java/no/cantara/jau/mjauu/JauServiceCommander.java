@@ -27,7 +27,8 @@ public class JauServiceCommander  {
     protected boolean stopService() {
         String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
         command = new String[]{"cmd", "/c","net", "stop", serviceId};
-        command = new String[]{"sc", "query", serviceId};
+        //FIXME verify or stop
+        // command = new String[]{"sc", "query", serviceId};
         boolean serviceStopedOk = false;
         try {
             log.info("Run command: {}" , buildString(command));
@@ -155,8 +156,37 @@ public class JauServiceCommander  {
     }
 
     public boolean installService() {
-      //TODO
-    return false;
+        boolean isInstaled = false;
+        String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
+        command = new String[]{"cmd", "/c","bin/java-auto-update", "install"};
+       // command = new String[]{"sc", "delete", serviceId};
+        try {
+            log.info("Run command: {}" , buildString(command));
+            Process process = new ProcessBuilder(command).start();
+            InputStream inputStream = process.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                log.info("RemoveServiece {}",line);
+                //printStatus(line);
+                boolean isVerified = verifyServiceIsIsInstalled(line);
+                if (isVerified){
+                    isInstaled = true;
+                }
+            }
+            log.info("Finshed waiting for Service removal. Removed {}", isInstaled);
+
+            //printStatus("Done.");
+        } catch(Exception ex) {
+            log.warn("Exception : "+ex);
+            // writer.print("Exception: " + ex.toString());
+        }
+    return isInstaled;
+    }
+
+    private boolean verifyServiceIsIsInstalled(String line) {
+        return false;
     }
 
     public boolean startService() {
