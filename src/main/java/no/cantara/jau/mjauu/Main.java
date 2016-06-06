@@ -14,9 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static no.cantara.jau.mjauu.state.State.*;
 
@@ -25,6 +23,7 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private final Properties properties = new Properties();
     private final String version;
+    private final String artifactId;
     private Enum status = null;
     private ConfigServiceClient configServiceClient;
 
@@ -60,9 +59,13 @@ public class Main {
         InputStream inStream = new FileInputStream(PROPERTIES_FILE_NAME);//zipUri.openStream();
         properties.load(inStream);
         this.version = properties.getProperty("version");
-        String configServiceUrl = properties.getProperty("configServiceUrl");
-        String configServiceUsername = properties.getProperty("configServiceUsername");
-        String configServicePassword = properties.getProperty("configServicePassword");
+
+        //FIXME  implement override from JAU providedd config.properties file
+        String configServiceUrl = properties.getProperty("configservice.url");
+        String configServiceUsername = properties.getProperty("configservice.username");
+        String configServicePassword = properties.getProperty("configservice.password");
+        this.clientId = properties.getProperty("configservice.clientid");
+        this.artifactId = properties.getProperty("configservice.artifactid");
         configServiceClient = new ConfigServiceClient(configServiceUrl, configServiceUsername, configServicePassword);
 
     }
@@ -112,7 +115,7 @@ public class Main {
 
         boolean upgradeVerified = jauUpdater.verifyUpgrade();
         if (!upgradeVerified){
-           updateStatus(Failure);
+            updateStatus(Failure);
             return;
         }
         updateStatus(Success);
@@ -210,17 +213,30 @@ public class Main {
     void issueEvent(int eventCount, Event event) {
         ExtractedEventsStore eventsStore = new ExtractedEventsStore();
         List<no.cantara.cs.dto.event.Event> events = new ArrayList<>();
-        events.add(new no.cantara.cs.dto.event.Event(eventCount, event.name()));
-        eventsStore.addEvents(events);
-
-        Properties applicationState = configServiceClient.getApplicationState();
         try {
+            String eventText = event.name() + " - " + Instant.now().toString();
+            no.cantara.cs.dto.event.Event csEvent = new no.cantara.cs.dto.event.Event(eventCount, eventText);
+            csEvent.setGroupName("MJAUU");
+            csEvent.setTag("UPGRADE");
+            csEvent.setFileName("mjauu-status.log");
+            events.add(csEvent);
+
+            eventsStore.addEvents(events);
+
+            Properties applicationState = configServiceClient.getApplicationState();
+            Map<String, String> envInfo = new HashMap<>();
+            String configLastChanged = applicationState.getProperty(ConfigServiceClient.LAST_CHANGED);
+            CheckForUpdateRequest updateRequest = new CheckForUpdateRequest(configLastChanged, envInfo, getClientId(),
+                    eventsStore);
+
             ClientConfig clientConfig = configServiceClient.checkForUpdate(getClientId(),
-                    new CheckForUpdateRequest(applicationState.getProperty(ConfigServiceClient.LAST_CHANGED)));
-            log.info("Forwarded Event {} to configService.", event);
+                    updateRequest);
+            log.info("Forwarded Event \"{}\" to configService.", event);
         } catch (IOException e) {
             log.warn("Failed to issue update Event to ConfigService");
             //FIXME how to handle this error.
+        } catch (Exception e) {
+            log.warn("Error while creating event {}", event, e);
         }
     }
 
@@ -228,15 +244,15 @@ public class Main {
         this.status = status;
         switch (status){
             case Started:
-                log.info("Status;{}" + Started);
+                log.info("Status;{}", Started);
                 issueEvent(0,Event.MjauuStarted);
                 break;
             case Success:
-                log.info("Status;{}" + Success);
+                log.info("Status;{}" , Success);
                 issueEvent(99,Event.UpgradeSuccess);
                 break;
             case Failure:
-                log.info("Status;{}" + Failure);
+                log.info("Status;{}" ,Failure);
                 issueEvent(98,Event.UpgradeFailed);
                 break;
 
