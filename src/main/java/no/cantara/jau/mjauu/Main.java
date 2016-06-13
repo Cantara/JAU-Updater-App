@@ -181,8 +181,10 @@ public class Main {
             eventsStore.addEvents(events);
 
             Properties applicationState = configServiceClient.getApplicationState();
+            clientId = applicationState.getProperty(ConfigServiceClient.CLIENT_ID);
             Map<String, String> envInfo = new HashMap<>();
             String configLastChanged = applicationState.getProperty(ConfigServiceClient.LAST_CHANGED);
+
             CheckForUpdateRequest updateRequest = new CheckForUpdateRequest(configLastChanged, envInfo, getClientId(),
                     eventsStore);
 
@@ -221,4 +223,5 @@ public class Main {
     public String getClientId() {
         return clientId;
     }
+
 }
