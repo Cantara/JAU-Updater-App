@@ -19,7 +19,7 @@ import java.util.*;
 import static no.cantara.jau.mjauu.state.State.*;
 
 public class Main {
-    public static final String PROPERTIES_FILE_NAME = "config.properties";
+    public static final String PROPERTIES_FILE_NAME = "mjauu-override.properties"; // "config.properties";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private final Properties properties = new Properties();
     private final String version;
@@ -190,7 +190,7 @@ public class Main {
                     updateRequest);
             log.info("Forwarded Event \"{}\" to configService.", event);
         } catch (IOException e) {
-            log.warn("Failed to issue update Event to ConfigService");
+            log.warn("Failed to issue update Event to ConfigService. Reason {}", e.getMessage());
             //FIXME how to handle this error.
         } catch (Exception e) {
             log.warn("Error while creating event {}", event, e);
