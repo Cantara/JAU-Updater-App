@@ -173,7 +173,7 @@ public class Main {
         try {
             String eventText = event.name() + " - " + Instant.now().toString();
             no.cantara.cs.dto.event.Event csEvent = new no.cantara.cs.dto.event.Event(eventCount, eventText);
-            csEvent.setGroupName("MJAUU");
+            csEvent.setGroupName("mjauu");
             csEvent.setTag("UPGRADE");
             csEvent.setFileName("mjauu-status.log");
             events.add(csEvent);
