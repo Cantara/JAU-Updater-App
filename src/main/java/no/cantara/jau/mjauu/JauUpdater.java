@@ -12,6 +12,7 @@ import java.io.IOException;
 public class JauUpdater {
     private static final Logger log = LoggerFactory.getLogger(JauUpdater.class);
     static final String JAU_SERVICE_NAME = "java-auto-update";
+    static final String JAU_ARTIFACT_ID = "java-auto-update";
 
     //URL url = getClass().getClassLoader().getResource("validconfig.properties");
     //JauProperties props = Util.getAndVerifyProperties(new File(url.toURI()));
@@ -82,15 +83,22 @@ public class JauUpdater {
     }
 
     public boolean updateConfig(String artifactId, String version) {
-        boolean copyZipContent = false;
-        File newJau = new File(toDir + File.separator + "java-auto-update" +"-" +version);
-        log.info("Copy files from backup {} to JAU {}", newJau,jauDir);
+        boolean configUpdated = false;
+        File newJau = new File(toDir + File.separator + JAU_ARTIFACT_ID +"-" +version);
+        log.info("Restore files from backup {} to JAU {}", newJau,jauDir);
         if (jauDir.exists() ) {
             if ( newJau.exists()) {
 
                 try {
-                    jauBackup.copy(newJau, jauDir);
-                    copyZipContent = true;
+                   boolean restoreFromBackup =  jauBackup.copy(newJau, jauDir);
+                    if (restoreFromBackup){
+                        log.info("Restored content from {} to {}", newJau,jauDir);
+
+                        configUpdated = true;
+                    } else {
+                        log.warn("Failed to restore content from {} to {}", newJau, jauDir);
+                    }
+
                 } catch (Exception e) {
                     log.warn("Failed to copy files from {} to {}", newJau, jauDir);
                 }
@@ -102,7 +110,7 @@ public class JauUpdater {
         }
 
         boolean newConfigWritten = false;
-        if (copyZipContent){
+        if (configUpdated){
             //FIXME copy correct content;
         }
         return newConfigWritten;
