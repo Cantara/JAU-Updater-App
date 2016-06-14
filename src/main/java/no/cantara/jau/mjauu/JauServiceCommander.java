@@ -82,18 +82,22 @@ public class JauServiceCommander  {
             InputStream inputStream = process.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String osOutput = "";
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 log.info("RemoveServiece {}",line);
+                osOutput += line + "\n";
                 //printStatus(line);
                 boolean isVerified = verifyServiceIsUninstalled(line);
                 if (isVerified){
                     isUninstalledOk = true;
                 }
             }
-            log.info("Finshed waiting for Service removal. Removed {}", isUninstalledOk);
-
-            //printStatus("Done.");
+            if (isUninstalledOk) {
+                log.info("{} Service is unistalled ok. Output from the OS \n\t{}", serviceId,osOutput);
+            } else {
+                log.error("Failed to stop the {} Service. Output from the OS \n\t{}", serviceId, osOutput);
+            }
         } catch(Exception ex) {
             log.warn("Exception : "+ex);
             // writer.print("Exception: " + ex.toString());

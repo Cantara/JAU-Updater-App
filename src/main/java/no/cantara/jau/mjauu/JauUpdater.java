@@ -11,7 +11,7 @@ import java.io.IOException;
  */
 public class JauUpdater {
     private static final Logger log = LoggerFactory.getLogger(JauUpdater.class);
-    private static final String JAU_SERVICE_NAME = "java-auto-update";
+    static final String JAU_SERVICE_NAME = "java-auto-update";
 
     //URL url = getClass().getClassLoader().getResource("validconfig.properties");
     //JauProperties props = Util.getAndVerifyProperties(new File(url.toURI()));

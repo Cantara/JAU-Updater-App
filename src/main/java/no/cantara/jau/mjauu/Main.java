@@ -175,7 +175,7 @@ public class Main {
             no.cantara.cs.dto.event.Event csEvent = new no.cantara.cs.dto.event.Event(eventCount, eventText);
             csEvent.setGroupName("mjauu");
             csEvent.setTag("UPGRADE");
-            csEvent.setFileName("mjauu-status.log");
+            csEvent.setFileName("logs/mjauu.log");
             events.add(csEvent);
 
             eventsStore.addEvents(events);
