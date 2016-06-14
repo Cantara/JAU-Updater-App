@@ -119,6 +119,7 @@ public class Main {
             return updatedOk;
         }
         issueEvent(5,Event.JauInstalledOk);
+        //FIXME Add action for creating new config for this client on ConfigServer
         boolean jauStartedOk = jauUpdater.startJau();
         if (!jauStartedOk){
             issueEvent(6,Event.JauInstallFailed);

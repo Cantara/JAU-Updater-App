@@ -1,5 +1,6 @@
 package no.cantara.jau.mjauu;
 
+import no.cantara.cs.client.ConfigServiceAdminClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,12 +95,11 @@ public class JauUpdater {
         log.info("Restore files from backup {} to JAU {}", newJau,jauDir);
         boolean restoredFromBackup = restoreFromBackup(newJau);
 
-        boolean newConfigWritten = false;
         if (restoredFromBackup){
-            //FIXME copy correct content;
-            newConfigWritten = replacePropertiesFromOverride();
+            configUpdated = replacePropertiesFromOverride();
         }
-        return newConfigWritten;
+        log.info("Config attempted updated. Status {}", configUpdated);
+        return configUpdated;
     }
 
     protected boolean restoreFromBackup(File newJau) {
@@ -157,6 +157,16 @@ public class JauUpdater {
         isInstalled = serviceCommander.installService();
 
         return isInstalled;
+    }
+
+    public boolean updateConfigOnConfigService(ConfigServiceAdminClient adminClient) {
+        boolean isUpdated = false;
+        //TODO create new ApplicationConfig, get the new ID for this config. Add this id to the client.
+
+        //Client client = adminClient.getClient(clientId);
+
+        //adminClient.putClient(client)
+        return isUpdated;
     }
 
     public boolean startJau() {
