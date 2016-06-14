@@ -43,6 +43,8 @@ public class Main {
                 main.updateStatus(State.Success);
             } else {
                 main.updateStatus(State.Failure);
+                //FIXME parse content from log files.
+                //TODO forward logs from files
             }
         } catch (URISyntaxException e) {
             log.error("Failed to update", e);
