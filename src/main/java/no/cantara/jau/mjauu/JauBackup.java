@@ -39,6 +39,7 @@ public class JauBackup {
         backup("install.bat");
         backup("unzip.exe");
         backup("wget.exe");
+        backup("last-running-process.txt");
 
         return backupOk;
     }
