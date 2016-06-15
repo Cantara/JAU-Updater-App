@@ -16,7 +16,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com:Cantara/JAU-Updater-App.git</developerConnection>
-        <connection>scm:git:git@github.com:Cantara/JAU-Updater-App.git</connection>
+        <connection>scm:git:https://github.com/cantara/JAU-Updater-App.git</connection>
         <url>https://github.com/Cantara/JAU-Updater-App</url>
     </scm>
 
