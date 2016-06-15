@@ -14,7 +14,7 @@
     </parent>
 
     <scm>
-        <developerConnection>scm:git:ssh://git@github.com:Cantara/JAU-Updater-App.git</developerConnection>
+        <developerConnection>scm:git:ssh://git@github.com/cantara/JAU-Updater-App.git</developerConnection>
         <connection>scm:git:https://github.com/cantara/JAU-Updater-App.git</connection>
         <url>https://github.com/Cantara/JAU-Updater-App</url>
       <tag>jau-updater-app-0.8-alpha-2</tag>
