@@ -55,6 +55,13 @@ public class Main {
         } catch (IOException e) {
             log.error("Failed to load properties file {}", MJAUU_OVERRIDES_PROPERTIES_FILE);
             main.updateStatus(State.Failure);
+        } catch (Exception e) {
+            log.error("Failure to run MJAUU. Reason {}", e.getMessage(), e);
+            try {
+                main.updateStatus(State.Failure);
+            } catch (Exception ie) {
+                log.error("Failed to send notification to ConfigService. Original cause {}", e.getMessage(), ie);
+            }
         }
         main.issueEvent(99,Event.MjauuFinished);
         log.info("Finished");
