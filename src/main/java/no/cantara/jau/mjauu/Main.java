@@ -73,7 +73,7 @@ public class Main {
     public Main() throws IOException {
         InputStream inStream = new FileInputStream(MJAUU_OVERRIDES_PROPERTIES_FILE);//zipUri.openStream();
         properties.load(inStream);
-        this.version = properties.getProperty("version");
+        this.version = properties.getProperty("mjauu.version");
 
         //FIXME  implement override from JAU providedd config.properties file
         String configServiceUrl = properties.getProperty("configservice.url");
