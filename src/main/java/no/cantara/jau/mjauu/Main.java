@@ -83,7 +83,8 @@ public class Main {
         this.artifactId = properties.getProperty("configservice.artifactid");
         this.newAppConfigId = properties.getProperty("nextApplicationConfigId");
         configServiceClient = new ConfigServiceClient(configServiceUrl, configServiceUsername, configServicePassword);
-        adminClient = new ConfigServiceAdminClient(configServiceUrl, configServiceUsername, configServicePassword);
+        String adminUrl = configServiceUrl.replace("/client", "");
+        adminClient = new ConfigServiceAdminClient(adminUrl, configServiceUsername, configServicePassword);
 
 
     }

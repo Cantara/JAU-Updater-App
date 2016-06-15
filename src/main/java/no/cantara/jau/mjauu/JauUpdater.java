@@ -187,6 +187,14 @@ public class JauUpdater {
     }
 
     public boolean verifyUpgrade() {
-        return false;
+        log.info("Sleep for 20 seconds to allow JAU to startup.");
+        boolean serviceIsRunning = false;
+        try {
+            Thread.sleep(20000);
+            serviceIsRunning = serviceCommander.serviceIsRunning();
+        } catch (InterruptedException e) {
+            log.warn("Sleep interupted. May not have verified that JAU is runing.");
+        }
+        return serviceIsRunning;
     }
 }

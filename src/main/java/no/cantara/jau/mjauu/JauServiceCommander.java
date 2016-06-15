@@ -237,4 +237,45 @@ The java-auto-update service was started successfully.
 
         return startedOk;
     }
+
+    public boolean serviceIsRunning() {
+        boolean isRunning = false;
+        String[] command = {"cmd.exe", "/c", "sc", "query", "java-auto-update"};
+        // command = new String[]{"cmd", "/c","bin/java-auto-update", "install"};
+        try {
+            log.info("Run command: {}" , buildString(command));
+            Process process = new ProcessBuilder(command).start();
+            InputStream inputStream = process.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                log.info("Query Service {}",line);
+                boolean isVerified = verifyServiceIsIsRuning(line);
+                if (isVerified){
+                    isRunning = true;
+                }
+            }
+            log.info("Finshed waiting for Service query. Running {}", isRunning);
+
+        } catch(Exception ex) {
+            log.warn("Exception : "+ex);
+        }
+        return isRunning;
+    }
+
+    private boolean verifyServiceIsIsRuning(String line) {
+        boolean runningOk = false;
+        if (line.contains("java-auto-update service was started successfully")){
+            runningOk = true;
+        } else if (line.contains("STATE") && line.contains("RUNNING")){
+            runningOk = true;
+        } else if (line.contains(serviceId) && line.contains("startet")) {
+            runningOk = true;
+        } else if (line.contains(serviceId) && line.contains("started")) {
+            runningOk = true;
+        }
+
+        return runningOk;
+    }
 }
