@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -122,34 +123,7 @@ public class JauServiceCommander  {
             return removedOk;
     }
 
-    /*
-    void printStatus(String status){
 
-
-        try {
-            fw = new FileWriter("hei2.txt", true);
-            bw = new BufferedWriter(fw);
-            writer = new PrintWriter(bw); //new PrintWriter("hei2.txt", "UTF-8");
-
-            writer.println(status + Instant.now());
-        } catch(Exception ex) {
-            log.warn("Exception : "+ex);
-            writer.print("Exception: " + ex.toString());
-        } finally {
-            writer.close();
-            try {
-                bw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    */
 
     private static String buildString(String[] command) {
         StringBuilder builder = new StringBuilder();
@@ -162,8 +136,71 @@ public class JauServiceCommander  {
     public boolean installService() {
         boolean isInstaled = false;
         String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
-        command = new String[]{"cmd", "/c","bin/java-auto-update", "install"};
-       // command = new String[]{"sc", "delete", serviceId};
+        command = new String[]{"cmd", "/c","bin" + File.separator + "java-auto-update", "install"};
+        try {
+            log.info("Run command: {}" , buildString(command));
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            //Process process = new ProcessBuilder(command).start();
+            InputStream inputStream = process.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
+            log.debug("process started.");
+            while ((line = bufferedReader.readLine()) != null) {
+                log.info("InstallService {}",line);
+                boolean isVerified = verifyServiceIsIsInstalled(line);
+                if (isVerified){
+                    isInstaled = true;
+                }
+            }
+            log.info("Finshed waiting for Service installation. Installed {}", isInstaled);
+
+        } catch(Exception ex) {
+            log.warn("Exception : {} ",ex);
+        }
+    return isInstaled;
+    }
+
+    private boolean verifyServiceIsIsInstalled(String line) {
+        boolean installedOk = false;
+        if (line.contains("java-auto-update installed")){
+            installedOk = true;
+        } else if (line.contains("java-auto-update installert")){
+            installedOk = true;
+        } else if (line.contains(serviceId) && line.contains("installed")) {
+            installedOk = true;
+        } else if (line.contains(serviceId) && line.contains("installert")) {
+            installedOk = true;
+        }
+
+        return installedOk;
+    }
+
+    public boolean startService() {
+        /*
+        sc start java-auto-update
+
+SERVICE_NAME: java-auto-update
+        TYPE               : 10  WIN32_OWN_PROCESS
+        STATE              : 2  START_PENDING
+                                (NOT_STOPPABLE, NOT_PAUSABLE, IGNORES_SHUTDOWN)
+        WIN32_EXIT_CODE    : 0  (0x0)
+        SERVICE_EXIT_CODE  : 0  (0x0)
+        CHECKPOINT         : 0x0
+        WAIT_HINT          : 0x7d0
+        PID                : 9548
+        FLAGS              :
+         */
+        /*
+        net start java-auto-update
+The java-auto-update service is starting..
+The java-auto-update service was started successfully.
+         */
+        boolean isStarted = false;
+        String[] command = {"cmd.exe", "/c", "net", "start", "java-auto-update"};
+       // command = new String[]{"cmd", "/c","bin/java-auto-update", "install"};
         try {
             log.info("Run command: {}" , buildString(command));
             Process process = new ProcessBuilder(command).start();
@@ -172,29 +209,32 @@ public class JauServiceCommander  {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                log.info("RemoveServiece {}",line);
-                //printStatus(line);
-                boolean isVerified = verifyServiceIsIsInstalled(line);
+                log.info("StartService {}",line);
+                boolean isVerified = verifyServiceIsIsStarted(line);
                 if (isVerified){
-                    isInstaled = true;
+                    isStarted = true;
                 }
             }
-            log.info("Finshed waiting for Service removal. Removed {}", isInstaled);
+            log.info("Finshed waiting for Service startup. Started {}", isStarted);
 
-            //printStatus("Done.");
         } catch(Exception ex) {
             log.warn("Exception : "+ex);
-            // writer.print("Exception: " + ex.toString());
         }
-    return isInstaled;
+        return isStarted;
     }
 
-    private boolean verifyServiceIsIsInstalled(String line) {
-        return false;
-    }
+    private boolean verifyServiceIsIsStarted(String line) {
+        boolean startedOk = false;
+        if (line.contains("java-auto-update service was started successfully")){
+            startedOk = true;
+        } else if (line.contains("java-auto-update") && line.contains("started")){
+            startedOk = true;
+        } else if (line.contains(serviceId) && line.contains("startet")) {
+            startedOk = true;
+        } else if (line.contains(serviceId) && line.contains("started")) {
+            startedOk = true;
+        }
 
-    public boolean startService() {
-        //TODO sc start service-id
-        return false;
+        return startedOk;
     }
 }

@@ -16,7 +16,7 @@ public class ManualJauServiceCommanderTest {
     public static void main(String[] args) {
         ManualJauServiceCommanderTest test  = new ManualJauServiceCommanderTest(JauUpdater.JAU_SERVICE_NAME);
         try {
-            test.testUninstallService();
+            test.installService();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -25,6 +25,12 @@ public class ManualJauServiceCommanderTest {
     public void testUninstallService() throws Exception {
         boolean isRemoved = serviceCommander.uninstallService();
         assertTrue(isRemoved);
+
+    }
+
+    public void installService() throws Exception {
+        boolean isInstalled = serviceCommander.installService();
+        assertTrue(isInstalled);
 
     }
 
