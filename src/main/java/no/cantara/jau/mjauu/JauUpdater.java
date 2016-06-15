@@ -1,6 +1,7 @@
 package no.cantara.jau.mjauu;
 
 import no.cantara.cs.client.ConfigServiceAdminClient;
+import no.cantara.cs.dto.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +19,8 @@ public class JauUpdater {
     private static final Logger log = LoggerFactory.getLogger(JauUpdater.class);
     static final String JAU_SERVICE_NAME = "java-auto-update";
     static final String JAU_ARTIFACT_ID = "java-auto-update";
-    private static final String JAU_PROPERTIES_FILE = "jau.properties";
-    private static final String MJAUU_OVERRIDES_PROPERTIES_FILE = "mjauu-override.properties";
+    public static final String JAU_PROPERTIES_FILE = "jau.properties";
+    public static final String NEW_JAU_PROPERTIES_FILE = "new-jau.properties";
 
     //URL url = getClass().getClassLoader().getResource("validconfig.properties");
     //JauProperties props = Util.getAndVerifyProperties(new File(url.toURI()));
@@ -131,7 +132,7 @@ public class JauUpdater {
         boolean propertiesUpdated = false;
 
         File jauPropertiesFile = new File("config_override" + File.separator + JAU_PROPERTIES_FILE);
-        File mjauuOverridesFile = new File(MJAUU_OVERRIDES_PROPERTIES_FILE);
+        File mjauuOverridesFile = new File(NEW_JAU_PROPERTIES_FILE);
         log.info("Replace propterties from {} to {}", mjauuOverridesFile, jauPropertiesFile);
         if (mjauuOverridesFile.exists()) {
             Properties mjauuOverride = loadPropreties(mjauuOverridesFile);
@@ -159,13 +160,23 @@ public class JauUpdater {
         return isInstalled;
     }
 
-    public boolean updateConfigOnConfigService(ConfigServiceAdminClient adminClient) {
+    public boolean connectClientToApplicationConfigId(ConfigServiceAdminClient adminClient,String clientId, String applicationConfigId) {
         boolean isUpdated = false;
-        //TODO create new ApplicationConfig, get the new ID for this config. Add this id to the client.
+        try {
+            Client client = adminClient.getClient(clientId);
+            if (client != null) {
+                client.applicationConfigId = applicationConfigId;
+                log.info("Link ClientId {} to ApplicationConfigId {}. Client {}", clientId, applicationConfigId,client.toString());
+                adminClient.putClient(client);
+                isUpdated = true;
+            } else {
+                log.warn("No client found with id {}. Can not link to application config." ,clientId);
+            }
 
-        //Client client = adminClient.getClient(clientId);
+        } catch (IOException e) {
+            log.warn("Failed to link clientId {} to applicationConfigId {}. Reason {}", clientId, applicationConfigId, e.getMessage());
+        }
 
-        //adminClient.putClient(client)
         return isUpdated;
     }
 

@@ -5,5 +5,5 @@ package no.cantara.jau.mjauu.state;
  */
 public enum Event {
     MjauuStarted,UnzipOk,UnzipFailed,BackupJauOk,BackupJauFailed,UninstallOk,UninstallFailed,ConfigUpdatedOk,ConfigUpdatedFailed,
-    JauInstalledOk,JauInstallFailed,JauStartedOk,JauStartFailed,UpgradeSuccess,UpgradeFailed, JauStopOk, JauStopFailed, MjauuFinished
+    JauInstalledOk,JauInstallFailed,JauStartedOk,JauStartFailed,UpgradeSuccess,UpgradeFailed, JauStopOk, JauStopFailed, LinkApplicationConfigFailed, LinkApplicationConfigOk, MjauuFinished
 }

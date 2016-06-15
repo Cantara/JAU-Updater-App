@@ -1,5 +1,6 @@
 package no.cantara.jau.mjauu;
 
+import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.dto.CheckForUpdateRequest;
 import no.cantara.cs.dto.ClientConfig;
@@ -19,13 +20,15 @@ import java.util.*;
 import static no.cantara.jau.mjauu.state.State.*;
 
 public class Main {
-    public static final String PROPERTIES_FILE_NAME = "mjauu-override.properties"; // "config.properties";
+    public static final String MJAUU_OVERRIDES_PROPERTIES_FILE = "mjauu-override.properties"; // "config.properties";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private final Properties properties = new Properties();
     private final String version;
     private final String artifactId;
+    private final String newAppConfigId;
     private Enum status = null;
     private ConfigServiceClient configServiceClient;
+    private ConfigServiceAdminClient adminClient;
 
     PrintWriter writer = null;
     FileWriter fw = null;
@@ -50,7 +53,7 @@ public class Main {
             log.error("Failed to update", e);
             main.updateStatus(State.Failure);
         } catch (IOException e) {
-            log.error("Failed to load properties file {}", PROPERTIES_FILE_NAME);
+            log.error("Failed to load properties file {}", MJAUU_OVERRIDES_PROPERTIES_FILE);
             main.updateStatus(State.Failure);
         }
         main.issueEvent(99,Event.MjauuFinished);
@@ -61,7 +64,7 @@ public class Main {
     }
 
     public Main() throws IOException {
-        InputStream inStream = new FileInputStream(PROPERTIES_FILE_NAME);//zipUri.openStream();
+        InputStream inStream = new FileInputStream(MJAUU_OVERRIDES_PROPERTIES_FILE);//zipUri.openStream();
         properties.load(inStream);
         this.version = properties.getProperty("version");
 
@@ -71,7 +74,10 @@ public class Main {
         String configServicePassword = properties.getProperty("configservice.password");
         this.clientId = properties.getProperty("configservice.clientid");
         this.artifactId = properties.getProperty("configservice.artifactid");
+        this.newAppConfigId = properties.getProperty("nextApplicationConfigId");
         configServiceClient = new ConfigServiceClient(configServiceUrl, configServiceUsername, configServicePassword);
+        adminClient = new ConfigServiceAdminClient(configServiceUrl, configServiceUsername, configServicePassword);
+
 
     }
 
@@ -119,7 +125,12 @@ public class Main {
             return updatedOk;
         }
         issueEvent(5,Event.JauInstalledOk);
-        //FIXME Add action for creating new config for this client on ConfigServer
+        boolean linkedToNewAppConfigId = jauUpdater.connectClientToApplicationConfigId(adminClient,clientId,newAppConfigId);
+        if (!linkedToNewAppConfigId){
+            issueEvent(6,Event.LinkApplicationConfigFailed);
+            return updatedOk;
+        }
+        issueEvent(6,Event.LinkApplicationConfigOk);
         boolean jauStartedOk = jauUpdater.startJau();
         if (!jauStartedOk){
             issueEvent(6,Event.JauInstallFailed);
