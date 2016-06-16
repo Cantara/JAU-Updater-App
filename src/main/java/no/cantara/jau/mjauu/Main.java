@@ -23,7 +23,9 @@ import static no.cantara.jau.mjauu.state.State.*;
 public class Main {
     public static final String MJAUU_OVERRIDES_PROPERTIES_FILE = "mjauu-override.properties"; // "config.properties";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static final String APPLICATION_STATE_PROPERTIES_FILE = "applicationState.properties";
     private final Properties properties = new Properties();
+    private final Properties applcationState = new Properties();
     private final String version;
     private final String artifactId;
     private final String newAppConfigId;
@@ -102,11 +104,13 @@ public class Main {
         properties.load(inStream);
         this.version = properties.getProperty("mjauu.version");
 
+        String clientIdFromState = findClientIdFromApplcationState();
         //FIXME  implement override from JAU providedd config.properties file
         String configServiceUrl = properties.getProperty("configservice.url");
         String configServiceUsername = properties.getProperty("configservice.username");
         String configServicePassword = properties.getProperty("configservice.password");
-        this.clientId = properties.getProperty("configservice.clientid"); //FIXME find from applicationState.properties
+        this.clientId = clientIdFromState;
+        //this.clientId = properties.getProperty("configservice.clientid"); //FIXME find from applicationState.properties
         this.artifactId = properties.getProperty("configservice.artifactid");
         this.mjauuAppConfigId = properties.getProperty("mjauuApplicationConfigId");
         this.newAppConfigId = properties.getProperty("nextApplicationConfigId");
@@ -114,6 +118,23 @@ public class Main {
         String adminUrl = configServiceUrl.replace("/client", "");
         adminClient = new ConfigServiceAdminClient(adminUrl, configServiceUsername, configServicePassword);
 
+
+    }
+
+    private String findClientIdFromApplcationState() {
+        String clientId = null;
+        InputStream inStream = null;//zipUri.openStream();
+        try {
+            inStream = new FileInputStream(APPLICATION_STATE_PROPERTIES_FILE);
+            applcationState.load(inStream);
+            clientId = applcationState.getProperty("clientId");
+        } catch (FileNotFoundException e) {
+            log.warn("Failed to load {}. Reason {}" , APPLICATION_STATE_PROPERTIES_FILE, e.getMessage());
+        } catch (IOException e) {
+            log.warn("Failed to load {}. Reason {}" , APPLICATION_STATE_PROPERTIES_FILE, e.getMessage());
+        }
+
+        return clientId;
 
     }
 
