@@ -3,6 +3,7 @@ package no.cantara.jau.mjauu;
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
 import no.cantara.cs.dto.CheckForUpdateRequest;
+import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.jau.mjauu.state.Event;
@@ -26,6 +27,7 @@ public class Main {
     private final String version;
     private final String artifactId;
     private final String newAppConfigId;
+    private final String mjauuAppConfigId;
     private Enum status = null;
     private ConfigServiceClient configServiceClient;
     private ConfigServiceAdminClient adminClient;
@@ -34,12 +36,15 @@ public class Main {
     FileWriter fw = null;
     BufferedWriter bw = null;
     private String clientId;
+    private boolean autoUpgrade = true;
 
     public static void main(String[] args) {
         Main main = null;
 
         try {
             main = new Main();
+            Client client = main.registerClientOnNewCS();
+            log.info("Continue with client {}", client);
             main.updateStatus(Started);
             boolean updatedOk = main.doUpdateProcess();
             if (updatedOk) {
@@ -70,6 +75,28 @@ public class Main {
 
     }
 
+    private Client registerClientOnNewCS() {
+        Client persistedClient = null;
+        Client client = null;// = new Client(clientId, mjauuAppConfigId,autoUpgrade);
+        try {
+           client = adminClient.getClient(clientId);
+
+        } catch (IOException e) {
+            log.info("No client found with id {}. Attempting to create a new one. Reason {}", e.getMessage());
+        }
+        if (persistedClient == null){
+            client = new Client(clientId, mjauuAppConfigId, autoUpgrade);
+            try {
+                persistedClient =adminClient.putClient(client);
+            } catch (IOException e) {
+               log.warn("Failed to create client with clientId {}, mjauuAppConfigId {}, autoUpgrade {}. Reason {}",
+                       clientId, mjauuAppConfigId, autoUpgrade, e.getMessage());
+            }
+        }
+        return persistedClient;
+
+    }
+
     public Main() throws IOException {
         InputStream inStream = new FileInputStream(MJAUU_OVERRIDES_PROPERTIES_FILE);//zipUri.openStream();
         properties.load(inStream);
@@ -79,8 +106,9 @@ public class Main {
         String configServiceUrl = properties.getProperty("configservice.url");
         String configServiceUsername = properties.getProperty("configservice.username");
         String configServicePassword = properties.getProperty("configservice.password");
-        this.clientId = properties.getProperty("configservice.clientid");
+        this.clientId = properties.getProperty("configservice.clientid"); //FIXME find from applicationState.properties
         this.artifactId = properties.getProperty("configservice.artifactid");
+        this.mjauuAppConfigId = properties.getProperty("mjauuApplicationConfigId");
         this.newAppConfigId = properties.getProperty("nextApplicationConfigId");
         configServiceClient = new ConfigServiceClient(configServiceUrl, configServiceUsername, configServicePassword);
         String adminUrl = configServiceUrl.replace("/client", "");
