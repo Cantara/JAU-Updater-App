@@ -20,9 +20,9 @@ public class UnZip {
     /**
      * Extracts a zip file specified by the zipFilePath to a directory specified by
      * destDirectory (will be created if does not exists)
-     * @param zipFilePath
-     * @param destDirectory
-     * @throws IOException
+     * @param zipFilePath name and dir files to be ziped
+     * @param destDirectory where to save
+     * @throws IOException File system errors
      */
     public void unzip(String zipFilePath, String destDirectory) throws IOException {
         File destDir = new File(destDirectory);
@@ -49,9 +49,9 @@ public class UnZip {
     }
     /**
      * Extracts a zip entry (file entry)
-     * @param zipIn
-     * @param filePath
-     * @throws IOException
+     * @param zipIn zipInputStream
+     * @param filePath extract to
+     * @throws IOException file system errors
      */
     private void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));

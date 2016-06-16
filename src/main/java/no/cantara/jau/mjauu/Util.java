@@ -162,7 +162,7 @@ public class Util {
         return false;
     }
 
-    /**
+    /*
      * http://howtodoinjava.com/core-java/io/how-to-generate-sha-or-md5-file-checksum-hash-in-java/
      */
     public static String getFileChecksum(MessageDigest digest, File file) throws IOException

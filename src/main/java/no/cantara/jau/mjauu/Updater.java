@@ -9,7 +9,7 @@ import java.nio.file.Path;
 /**
  * 1. Gets properties from CS
  * -- Which file (JAU) to download
- * -- Checksum of JAU file (or just assume mvn-repo with checksum at <filename>-md5?)
+ * -- Checksum of JAU file (or just assume mvn-repo with checksum at filename-md5?)
  * -- Where to copy new JAU
  * -- Which files/folders to copy to new JAU
  * -- Which install file to exec (in this case .bat file and Windows)
