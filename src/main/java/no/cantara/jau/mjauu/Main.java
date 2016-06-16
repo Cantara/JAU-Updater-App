@@ -84,7 +84,7 @@ public class Main {
            persistedClient = adminClient.getClient(clientId);
 
         } catch (IOException e) {
-            log.info("No client found with id {}. Attempting to create a new one. Reason {}", e.getMessage());
+            log.info("No client found with id {}. Attempting to create a new one. Reason {}", clientId, e.getMessage());
         }
         if (persistedClient == null){
             client = new Client(clientId, mjauuAppConfigId, autoUpgrade);
