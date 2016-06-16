@@ -116,10 +116,26 @@ public class JauBackup {
         return allRemoved;
     }
 
-    private void delete(String fileOrDir) {
+    private boolean delete(String fileOrDir) {
+        boolean isDeleted = false;
         File toBeDeleted = new File(fileOrDir);
         if (toBeDeleted.exists()) {
-            toBeDeleted.delete();
+            if (toBeDeleted.isDirectory()) {
+                for (File file : toBeDeleted.listFiles()) {
+                    file.delete();
+                }
+            }
+            isDeleted = toBeDeleted.delete();
+
+            if (isDeleted) {
+                log.info("Deleted file or directory {}. ", fileOrDir);
+            } else {
+                log.warn("Failed to delete file or directory {}", fileOrDir);
+            }
+        } else {
+            log.info("File or dir {} does not exist", fileOrDir);
+            isDeleted = true;
         }
+        return isDeleted;
     }
 }
