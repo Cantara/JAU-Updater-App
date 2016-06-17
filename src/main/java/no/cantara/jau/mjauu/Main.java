@@ -15,6 +15,8 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.util.*;
 
@@ -39,6 +41,7 @@ public class Main {
     BufferedWriter bw = null;
     private String clientId;
     private boolean autoUpgrade = true;
+    private String customId = "";
 
     public static void main(String[] args) {
         Main main = null;
@@ -58,14 +61,14 @@ public class Main {
             }
         } catch (URISyntaxException e) {
             log.error("Failed to update", e);
-            main.updateStatus(State.Failure);
+            main.updateStatus(State.Failure,e);
         } catch (IOException e) {
             log.error("Failed to load properties file {}", MJAUU_OVERRIDES_PROPERTIES_FILE);
-            main.updateStatus(State.Failure);
+            main.updateStatus(State.Failure, e);
         } catch (Exception e) {
             log.error("Failure to run MJAUU. Reason {}", e.getMessage(), e);
             try {
-                main.updateStatus(State.Failure);
+                main.updateStatus(State.Failure,e);
             } catch (Exception ie) {
                 log.error("Failed to send notification to ConfigService. Original cause {}", e.getMessage(), ie);
             }
@@ -270,6 +273,70 @@ public class Main {
         }
     }
 
+    void notifyFailure(String customId,Exception ex){
+        ExtractedEventsStore eventsStore = new ExtractedEventsStore();
+        List<no.cantara.cs.dto.event.Event> events = new ArrayList<>();
+        int eventCount = 0;
+        try {
+            File logFile = FileUtil.findLogFile();
+            events = parseLogFile(events, eventCount, logFile);
+            eventCount = eventCount + events.size();
+            String eventText = "CustomId: " + customId +", Exception: " + ex + " - " + Instant.now().toString();
+            no.cantara.cs.dto.event.Event csEvent = new no.cantara.cs.dto.event.Event(eventCount, eventText);
+
+            csEvent.setGroupName("mjauu");
+            csEvent.setTag("UPGRADE-FAILED-" + customId);
+            csEvent.setFileName("logs/mjauu.log");
+            events.add(csEvent);
+
+            eventsStore.addEvents(events);
+
+            Properties applicationState = configServiceClient.getApplicationState();
+            clientId = applicationState.getProperty(ConfigServiceClient.CLIENT_ID);
+            Map<String, String> envInfo = new HashMap<>();
+            String configLastChanged = applicationState.getProperty(ConfigServiceClient.LAST_CHANGED);
+
+            CheckForUpdateRequest updateRequest = new CheckForUpdateRequest(configLastChanged, envInfo, getClientId(),
+                    eventsStore);
+
+            ClientConfig clientConfig = configServiceClient.checkForUpdate(getClientId(),
+                    updateRequest);
+            log.info("Forwarded Failure {} to configService. CustomId {]", ex.getMessage(), customId);
+        } catch (IOException e) {
+            log.warn("Failed to issue update Failure to ConfigService. Reason {}", e.getMessage());
+        } catch (Exception e) {
+            log.warn("Error while creating event {}", ex, e);
+        }
+
+    }
+
+    private List<no.cantara.cs.dto.event.Event> parseLogFile(List<no.cantara.cs.dto.event.Event> events, int eventCount, File logFile) {
+        try (BufferedReader reader = Files.newBufferedReader(logFile.toPath(), StandardCharsets.UTF_8)) {
+
+            String line;
+            no.cantara.cs.dto.event.Event event = null;
+
+            while ((line = reader.readLine()) != null) {
+               // ++eventCount;
+                 //   if (hasStartPattern(line) || event == null) {
+                        event = new no.cantara.cs.dto.event.Event(eventCount, line);
+                            events.add(event);
+                   // } else if (event.getLine().length() < MAX_LINE_LENGTH) {
+                        // Append to the current log event if this line is a continuation.
+                     //   event.setLine(event.getLine() + "\n" + line);
+                    //}
+            }
+
+        } catch (IOException e) {
+            log.error("Error reading log file {}", logFile, e);
+      //  } catch (IOException e) {
+        //    e.printStackTrace();
+        }
+        return events;
+    }
+
+
+
     void updateStatus(State status) {
         this.status = status;
         switch (status){
@@ -287,8 +354,23 @@ public class Main {
                 break;
 
         }
+    }
 
+    void updateStatus(State status, Exception e) {
+        if (e == null ){
+            updateStatus(status);
+        } else {
+            this.status = status;
+            switch (status) {
 
+                case Failure:
+                    log.info("Status;{}", Failure);
+                    notifyFailure(customId, e);
+                    break;
+                default:
+                    updateStatus(status);
+            }
+        }
     }
 
     public String getClientId() {

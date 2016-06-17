@@ -1,9 +1,14 @@
 package no.cantara.jau.mjauu;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.FileAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.Properties;
 
 /**
@@ -45,6 +50,25 @@ public class FileUtil {
         }
 
         return savedProperties;
+    }
+
+    public static File findLogFile(){
+        File logFile = null;
+        FileAppender<?> fileAppender = null;
+        LoggerContext context = (LoggerContext)LoggerFactory.getILoggerFactory();
+        for (ch.qos.logback.classic.Logger logger : context.getLoggerList()){
+            for (Iterator<Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext();) {
+                Object enumElement = index.next();
+                if (enumElement instanceof FileAppender) {
+                    fileAppender=(FileAppender<?>)enumElement;
+                }
+            }
+        }
+
+        if (fileAppender != null) {
+            logFile=new File(fileAppender.getFile());
+        }
+        return logFile;
     }
 
 
