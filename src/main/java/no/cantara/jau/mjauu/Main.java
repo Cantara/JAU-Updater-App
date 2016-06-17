@@ -56,8 +56,6 @@ public class Main {
                 main.updateStatus(State.Success);
             } else {
                 main.updateStatus(State.Failure);
-                //FIXME parse content from log files.
-                //TODO forward logs from files
             }
         } catch (URISyntaxException e) {
             log.error("Failed to update", e);
@@ -207,17 +205,6 @@ public class Main {
         updatedOk = true;
         return updatedOk;
 
-        /*
-        do {
-            printStatus("Continue:");
-            stopService("java-auto-update");
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } while (true);
-        */
     }
 
     private File findToDir(String toDirName) {
@@ -267,7 +254,6 @@ public class Main {
             log.info("Forwarded Event \"{}\" to configService.", event);
         } catch (IOException e) {
             log.warn("Failed to issue update Event to ConfigService. Reason {}", e.getMessage());
-            //FIXME how to handle this error.
         } catch (Exception e) {
             log.warn("Error while creating event {}", event, e);
         }
