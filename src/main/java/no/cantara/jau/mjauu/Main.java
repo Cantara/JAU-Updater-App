@@ -273,15 +273,23 @@ public class Main {
         }
     }
 
-    void notifyFailure(String customId,Exception ex){
+    void notifyFailure(String customId, Exception ex, Event upgradeFailed){
+        log.error("Notify failure for customId {}, exeption {}", customId, ex);
         ExtractedEventsStore eventsStore = new ExtractedEventsStore();
         List<no.cantara.cs.dto.event.Event> events = new ArrayList<>();
         int eventCount = 0;
         try {
             File logFile = FileUtil.findLogFile();
-            events = parseLogFile(events, eventCount, logFile);
-            eventCount = eventCount + events.size();
-            String eventText = "CustomId: " + customId +", Exception: " + ex + " - " + Instant.now().toString();
+            events = parseLogFile(eventCount, logFile);
+            eventCount = eventCount + events.size() +1;
+            String eventText = "CustomId: " + customId;
+            if (ex != null) {
+                eventText += ", Exception: " + ex ;
+            }
+            if (upgradeFailed != null) {
+                eventText += ", Event {} " + upgradeFailed.name();
+            }
+            eventText +=  " - " + Instant.now().toString();
             no.cantara.cs.dto.event.Event csEvent = new no.cantara.cs.dto.event.Event(eventCount, eventText);
 
             csEvent.setGroupName("mjauu");
@@ -301,7 +309,7 @@ public class Main {
 
             ClientConfig clientConfig = configServiceClient.checkForUpdate(getClientId(),
                     updateRequest);
-            log.info("Forwarded Failure {} to configService. CustomId {]", ex.getMessage(), customId);
+            log.info("Forwarded Failure {} to configService. CustomId {]", ex, customId);
         } catch (IOException e) {
             log.warn("Failed to issue update Failure to ConfigService. Reason {}", e.getMessage());
         } catch (Exception e) {
@@ -310,21 +318,24 @@ public class Main {
 
     }
 
-    private List<no.cantara.cs.dto.event.Event> parseLogFile(List<no.cantara.cs.dto.event.Event> events, int eventCount, File logFile) {
+    private List<no.cantara.cs.dto.event.Event> parseLogFile( int eventCount, File logFile) {
+        List<no.cantara.cs.dto.event.Event> events = new ArrayList<>();
         try (BufferedReader reader = Files.newBufferedReader(logFile.toPath(), StandardCharsets.UTF_8)) {
 
             String line;
-            no.cantara.cs.dto.event.Event event = null;
 
             while ((line = reader.readLine()) != null) {
-               // ++eventCount;
-                 //   if (hasStartPattern(line) || event == null) {
-                        event = new no.cantara.cs.dto.event.Event(eventCount, line);
-                            events.add(event);
-                   // } else if (event.getLine().length() < MAX_LINE_LENGTH) {
-                        // Append to the current log event if this line is a continuation.
-                     //   event.setLine(event.getLine() + "\n" + line);
-                    //}
+                // ++eventCount;
+                //   if (hasStartPattern(line) || event == null) {
+                no.cantara.cs.dto.event.Event event = new no.cantara.cs.dto.event.Event(eventCount, line);
+                event.setGroupName("mjauu");
+                event.setTag("UPGRADE-FAILED-" + customId);
+                event.setFileName("logs/mjauu.log");
+                events.add(event);
+                // } else if (event.getLine().length() < MAX_LINE_LENGTH) {
+                // Append to the current log event if this line is a continuation.
+                //   event.setLine(event.getLine() + "\n" + line);
+                //}
             }
 
         } catch (IOException e) {
@@ -350,7 +361,8 @@ public class Main {
                 break;
             case Failure:
                 log.info("Status;{}" ,Failure);
-                issueEvent(98,Event.UpgradeFailed);
+                notifyFailure(customId,null, Event.UpgradeFailed);
+                //issueEvent(98,Event.UpgradeFailed);
                 break;
 
         }
@@ -365,7 +377,7 @@ public class Main {
 
                 case Failure:
                     log.info("Status;{}", Failure);
-                    notifyFailure(customId, e);
+                    notifyFailure(customId, e, Event.UpgradeFailed);
                     break;
                 default:
                     updateStatus(status);
