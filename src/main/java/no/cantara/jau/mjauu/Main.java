@@ -8,6 +8,8 @@ import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.jau.mjauu.state.Event;
 import no.cantara.jau.mjauu.state.State;
+import no.cantara.jau.mjauu.util.PropertiesHelper;
+import no.cantara.jau.mjauu.util.ProxyFixer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +46,8 @@ public class Main {
     private String customId = "";
 
     public static void main(String[] args) {
+        ProxyFixer.fixProxy(PropertiesHelper.getPropertiesFromConfigFile(MJAUU_OVERRIDES_PROPERTIES_FILE));
+
         Main main = null;
 
         try {
