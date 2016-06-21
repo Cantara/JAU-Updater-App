@@ -30,7 +30,7 @@ public class JauBackup {
         backup("bin");
         backup("config_override");
         backup("etc");
-        backup("java");//TODO decide if needed for bakup
+        backup("java");//Java may be upgraded in later releases of MJAUU.
         backup("lib");
         backup("applicationState.properties");
         backup("config.properties");
