@@ -30,7 +30,7 @@ public class JauServiceCommander  {
         command = new String[]{"cmd", "/c","net", "stop", serviceId};
         //FIXME verify or stop
         // command = new String[]{"sc", "query", serviceId};
-        boolean serviceStopedOk = false;
+        boolean serviceStoppedOk = false;
         try {
             log.info("Run command: {}" , buildString(command));
             Process process = new ProcessBuilder(command).start();
@@ -39,37 +39,37 @@ public class JauServiceCommander  {
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                log.info("StopServiece {}",line);
+                log.info("StopService {}",line);
                 //printStatus(line);
                 boolean isVerified = verifyServiceIsStopped(line);
                 if (isVerified){
-                    serviceStopedOk = true;
+                    serviceStoppedOk = true;
                 }
             }
-            log.info("Finshed waiting for Service stoping. Stoped {}", serviceStopedOk);
+            log.info("Finshed waiting for Service stoping. Stopped {}", serviceStoppedOk);
 
             //printStatus("Done.");
         } catch(Exception ex) {
             log.warn("Exception : "+ex);
            // writer.print("Exception: " + ex.toString());
         }
-        return serviceStopedOk;
+        return serviceStoppedOk;
     }
 
     private boolean verifyServiceIsStopped(String line) {
-        boolean stopedOk = false;
+        boolean stoppedOk = false;
         if (line.contains("stoppet")){
-            stopedOk = true;
-        } else if (line.contains("stoped")) {
-            stopedOk = true;
+            stoppedOk = true;
+        } else if (line.contains("stopped")) {
+            stoppedOk = true;
         } else if(line.contains("The specified service does not exist as an installed service")){
             log.info("{} is not installed.", serviceId);
-            stopedOk = true;
+            stoppedOk = true;
         } else if(line.contains("STATE") && line.contains("STOPPED")){
-            log.info("{} is stoped.", serviceId);
-            stopedOk = true;
+            log.info("{} is stopped.", serviceId);
+            stoppedOk = true;
         }
-        return stopedOk;
+        return stoppedOk;
     }
 
     protected  boolean uninstallService(){
@@ -111,7 +111,7 @@ public class JauServiceCommander  {
             boolean removedOk = false;
             if (line.contains("stoppet")){
                 removedOk = true;
-            } else if (line.contains("stoped")) {
+            } else if (line.contains("stopped")) {
                 removedOk = true;
             } else if(line.contains("The specified service does not exist as an installed service")){
                 log.info("{} is not installed.", serviceId);
