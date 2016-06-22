@@ -13,6 +13,9 @@ A small application to do a controlled update of the Java Auto Updater applicati
 
 
 ### MJAUU Properties
+
+Thes settings will be set in a config JAU uses to launch MJAUU
+
 ```
 "configurationStores": [
         ....
