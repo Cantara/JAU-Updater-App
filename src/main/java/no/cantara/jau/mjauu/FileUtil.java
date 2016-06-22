@@ -8,8 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by baardl on 14/06/2016.
@@ -72,4 +71,17 @@ public class FileUtil {
     }
 
 
+    public static List<String> findByRegEx(String customIdFile, String customIdRegex) {
+        List<String> matches = new ArrayList<>();
+        Scanner s = null;
+        try {
+            s = new Scanner(new File(customIdFile));
+            String nextMatch = s.findWithinHorizon(customIdRegex, 0);
+            matches.add(nextMatch);
+        } catch (FileNotFoundException e) {
+            log.info("Could not fine file with name {}", customIdFile);
+        }
+
+        return matches;
+    }
 }

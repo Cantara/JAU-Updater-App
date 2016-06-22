@@ -2,12 +2,16 @@ package no.cantara.jau.mjauu;
 
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
+import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.CheckForUpdateRequest;
 import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.ClientConfig;
+import no.cantara.cs.dto.event.EventExtractionConfig;
+import no.cantara.cs.dto.event.EventExtractionTag;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.jau.mjauu.state.Event;
 import no.cantara.jau.mjauu.state.State;
+import no.cantara.jau.mjauu.util.PropertiesHelper;
 import no.cantara.jau.mjauu.util.ProxyFixer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +31,9 @@ public class Main {
     public static final String MJAUU_OVERRIDES_PROPERTIES_FILE = "mjauu-override.properties"; // "config.properties";
     private static final Logger log = LoggerFactory.getLogger(Main.class);
     private static final String APPLICATION_STATE_PROPERTIES_FILE = "applicationState.properties";
+    private static final String CUSTOMID_KEY = "customId";
+    private static final String CUSTOMID_FILE_KEY = CUSTOMID_KEY + ".file";
+    private static final String CUSTOMID_REGEX_KEY = CUSTOMID_KEY + ".regex";
     private final Properties properties = new Properties();
     private final Properties applcationState = new Properties();
     private final String version;
@@ -53,6 +60,9 @@ public class Main {
             main = new Main();
             Client client = main.registerClientOnNewCS();
             log.info("Continue with client {}", client);
+
+            main.customId = main.findCustomId(client);
+
             main.updateStatus(Started);
             boolean updatedOk = main.doUpdateProcess();
             if (updatedOk) {
@@ -81,11 +91,52 @@ public class Main {
 
     }
 
+    private String findCustomId(Client client) {
+        String parsedCustomId = PropertiesHelper.getStringProperty(properties,CUSTOMID_KEY, null);
+        if (customId ==null || customId.isEmpty()) {
+           String customIdFile = PropertiesHelper.getStringProperty(properties, CUSTOMID_FILE_KEY, null);
+            String customIdRegex = PropertiesHelper.getStringProperty(properties, CUSTOMID_REGEX_KEY, null);
+            List<String> matches = FileUtil.findByRegEx(customIdFile, customIdRegex);
+            if (matches.size() > 0) {
+                parsedCustomId = matches.get(0);
+            }
+
+        }
+        /*
+        if (client != null) {
+            ApplicationConfig applicationConfig = null;
+            try {
+                applicationConfig = adminClient.getApplicationConfig(client.applicationConfigId);
+                String customIdKey = "customId";
+                List<EventExtractionConfig> extractionConfigs = applicationConfig.getEventExtractionConfigs();
+                if (extractionConfigs != null) {
+                    for (EventExtractionConfig extractionConfig : extractionConfigs) {
+                        if (extractionConfig != null && extractionConfig.groupName.equals("jau")) {
+                            for (EventExtractionTag tag : extractionConfig.tags) {
+                                if (tag != null && tag.tagName.equals(customIdKey)){
+                                    //TODO parse file
+                                }
+
+                            }
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                log.warn("Failed to get applicationConfig. clientId {}, applicationConfigId {}, reason {}", client.clientId, client.applicationConfigId, e.getMessage());
+            }
+
+        }
+        */
+        return parsedCustomId;
+
+    }
+
     private Client registerClientOnNewCS() {
         Client persistedClient = null;
         Client client = null;// = new Client(clientId, mjauuAppConfigId,autoUpgrade);
         try {
            persistedClient = adminClient.getClient(clientId);
+
 
         } catch (IOException e) {
             log.info("No client found with id {}. Attempting to create a new one. Reason {}", clientId, e.getMessage());
@@ -240,7 +291,7 @@ public class Main {
         ExtractedEventsStore eventsStore = new ExtractedEventsStore();
         List<no.cantara.cs.dto.event.Event> events = new ArrayList<>();
         try {
-            String eventText = event.name() + " - " + Instant.now().toString();
+            String eventText = customId + "-" + event.name() + " - " + Instant.now().toString();
             no.cantara.cs.dto.event.Event csEvent = new no.cantara.cs.dto.event.Event(eventCount, eventText);
             csEvent.setGroupName("mjauu");
             csEvent.setTag("UPGRADE");
