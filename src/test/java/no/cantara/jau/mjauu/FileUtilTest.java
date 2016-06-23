@@ -3,7 +3,6 @@ package no.cantara.jau.mjauu;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -28,6 +27,18 @@ public class FileUtilTest {
         assertNotNull(matches);
         assertTrue(matches.size() >0);
         assertEquals(matches.get(0), "\"agentId\":\"8011\"");
+
+    }
+    @Test
+    public void testFindByRegExEmptyValues() throws Exception {
+        String regex = null;
+        String filePath = null;
+        List<String> matches = FileUtil.findByRegEx(filePath, regex);
+        assertNotNull(matches);
+        regex = "";
+        filePath = "";
+        matches = FileUtil.findByRegEx(filePath, regex);
+        assertNotNull(matches);
 
     }
 }

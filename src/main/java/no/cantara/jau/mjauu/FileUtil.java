@@ -72,16 +72,27 @@ public class FileUtil {
 
 
     public static List<String> findByRegEx(String customIdFile, String customIdRegex) {
+        log.trace("Try findByRegEx. customIdFile {}, customIdRegex {}", customIdFile,customIdRegex);
         List<String> matches = new ArrayList<>();
-        Scanner s = null;
-        try {
-            s = new Scanner(new File(customIdFile));
-            String nextMatch = s.findWithinHorizon(customIdRegex, 0);
-            matches.add(nextMatch);
-        } catch (FileNotFoundException e) {
-            log.info("Could not fine file with name {}", customIdFile);
+        if (hasValue(customIdFile) && hasValue(customIdRegex)) {
+
+            Scanner s = null;
+            try {
+                File fileWithId = new File(customIdFile);
+                if (fileWithId != null && fileWithId.exists()) {
+                    s = new Scanner(fileWithId);
+                    String nextMatch = s.findWithinHorizon(customIdRegex, 0);
+                    matches.add(nextMatch);
+                }
+            } catch (FileNotFoundException e) {
+                log.info("Could not fine file with name {}", customIdFile);
+            }
         }
 
         return matches;
+    }
+
+    private static boolean hasValue(String customIdFile) {
+        return customIdFile != null && !customIdFile.isEmpty();
     }
 }
