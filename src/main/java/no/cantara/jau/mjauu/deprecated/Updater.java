@@ -1,5 +1,6 @@
-package no.cantara.jau.mjauu;
+package no.cantara.jau.mjauu.deprecated;
 
+import no.cantara.jau.mjauu.JauProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import java.nio.file.Path;
  * 5. Copy files/folders to new dir
  * 6. Run install.bat
  */
+@Deprecated
 public class Updater {
     private static final Logger log = LoggerFactory.getLogger(Updater.class);
     private final JauProperties properties;

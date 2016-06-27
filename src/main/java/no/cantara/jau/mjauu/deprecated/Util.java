@@ -1,7 +1,8 @@
-package no.cantara.jau.mjauu;
+package no.cantara.jau.mjauu.deprecated;
 
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import no.cantara.jau.mjauu.JauProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,7 @@ import java.util.Properties;
 
 import static java.util.stream.Collectors.toList;
 
+@Deprecated
 public class Util {
     private static final Logger log = LoggerFactory.getLogger(Util.class);
 
