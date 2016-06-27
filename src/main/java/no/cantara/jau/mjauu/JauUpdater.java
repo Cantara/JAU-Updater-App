@@ -107,9 +107,7 @@ public class JauUpdater {
         boolean restoredFromBackup = false;
         if (jauDir.exists() ) {
             if ( newJau.exists()) {
-
                 try {
-                    //FIXME Restore only selected files and direcotories.
                    restoredFromBackup =  jauBackup.copy(newJau, jauDir);
                     if (restoredFromBackup){
                         log.info("Restored content from {} to {}", newJau,jauDir);

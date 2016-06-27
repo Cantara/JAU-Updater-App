@@ -2,12 +2,9 @@ package no.cantara.jau.mjauu;
 
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.client.ConfigServiceClient;
-import no.cantara.cs.dto.ApplicationConfig;
 import no.cantara.cs.dto.CheckForUpdateRequest;
 import no.cantara.cs.dto.Client;
 import no.cantara.cs.dto.ClientConfig;
-import no.cantara.cs.dto.event.EventExtractionConfig;
-import no.cantara.cs.dto.event.EventExtractionTag;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.jau.mjauu.state.Event;
 import no.cantara.jau.mjauu.state.State;
@@ -102,31 +99,7 @@ public class Main {
             }
 
         }
-        /*
-        if (client != null) {
-            ApplicationConfig applicationConfig = null;
-            try {
-                applicationConfig = adminClient.getApplicationConfig(client.applicationConfigId);
-                String customIdKey = "customId";
-                List<EventExtractionConfig> extractionConfigs = applicationConfig.getEventExtractionConfigs();
-                if (extractionConfigs != null) {
-                    for (EventExtractionConfig extractionConfig : extractionConfigs) {
-                        if (extractionConfig != null && extractionConfig.groupName.equals("jau")) {
-                            for (EventExtractionTag tag : extractionConfig.tags) {
-                                if (tag != null && tag.tagName.equals(customIdKey)){
-                                    //TODO parse file
-                                }
 
-                            }
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                log.warn("Failed to get applicationConfig. clientId {}, applicationConfigId {}, reason {}", client.clientId, client.applicationConfigId, e.getMessage());
-            }
-
-        }
-        */
         return parsedCustomId;
 
     }
@@ -165,12 +138,10 @@ public class Main {
         this.version = properties.getProperty("mjauu.version");
 
         String clientIdFromState = findClientIdFromApplcationState();
-        //FIXME  implement override from JAU providedd config.properties file
         String configServiceUrl = properties.getProperty("configservice.url");
         String configServiceUsername = properties.getProperty("configservice.username");
         String configServicePassword = properties.getProperty("configservice.password");
         this.clientId = clientIdFromState;
-        //this.clientId = properties.getProperty("configservice.clientid"); //FIXME find from applicationState.properties
         this.artifactId = properties.getProperty("configservice.artifactid");
         this.mjauuAppConfigId = properties.getProperty("mjauuApplicationConfigId");
         this.newAppConfigId = properties.getProperty("nextApplicationConfigId");

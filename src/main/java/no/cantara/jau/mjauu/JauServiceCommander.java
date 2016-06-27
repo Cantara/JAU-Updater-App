@@ -26,10 +26,7 @@ public class JauServiceCommander  {
 
 
     protected boolean stopService() {
-        String[] command = {"cmd.exe", "/c", "net", "stop", "java-auto-update"};
-        command = new String[]{"cmd", "/c","net", "stop", serviceId};
-        //FIXME verify or stop
-        // command = new String[]{"sc", "query", serviceId};
+        String[] command = new String[]{"cmd", "/c","net", "stop", serviceId};
         boolean serviceStoppedOk = false;
         try {
             log.info("Run command: {}" , buildString(command));
@@ -40,7 +37,6 @@ public class JauServiceCommander  {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 log.info("StopService {}",line);
-                //printStatus(line);
                 boolean isVerified = verifyServiceIsStopped(line);
                 if (isVerified){
                     serviceStoppedOk = true;
@@ -48,10 +44,8 @@ public class JauServiceCommander  {
             }
             log.info("Finshed waiting for Service stoping. Stopped {}", serviceStoppedOk);
 
-            //printStatus("Done.");
         } catch(Exception ex) {
             log.warn("Exception : "+ex);
-           // writer.print("Exception: " + ex.toString());
         }
         return serviceStoppedOk;
     }
