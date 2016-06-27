@@ -2,6 +2,7 @@ package no.cantara.jau.mjauu;
 
 import no.cantara.cs.client.ConfigServiceAdminClient;
 import no.cantara.cs.dto.Client;
+import no.cantara.jau.mjauu.util.UnZip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import static no.cantara.jau.mjauu.FileUtil.loadPropreties;
-import static no.cantara.jau.mjauu.FileUtil.saveProperties;
+import static no.cantara.jau.mjauu.util.FileUtil.loadPropreties;
+import static no.cantara.jau.mjauu.util.FileUtil.saveProperties;
 
 /**
  * Created by baardl on 27/05/2016.

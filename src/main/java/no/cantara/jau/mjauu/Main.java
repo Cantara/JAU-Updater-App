@@ -8,6 +8,7 @@ import no.cantara.cs.dto.ClientConfig;
 import no.cantara.cs.dto.event.ExtractedEventsStore;
 import no.cantara.jau.mjauu.state.Event;
 import no.cantara.jau.mjauu.state.State;
+import no.cantara.jau.mjauu.util.FileUtil;
 import no.cantara.jau.mjauu.util.PropertiesHelper;
 import no.cantara.jau.mjauu.util.ProxyFixer;
 import org.slf4j.Logger;

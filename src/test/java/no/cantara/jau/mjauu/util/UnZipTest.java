@@ -1,5 +1,6 @@
-package no.cantara.jau.mjauu;
+package no.cantara.jau.mjauu.util;
 
+import no.cantara.jau.mjauu.Main;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;

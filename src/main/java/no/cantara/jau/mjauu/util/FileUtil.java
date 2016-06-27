@@ -1,4 +1,4 @@
-package no.cantara.jau.mjauu;
+package no.cantara.jau.mjauu.util;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;

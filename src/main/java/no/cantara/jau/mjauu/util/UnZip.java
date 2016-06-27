@@ -1,4 +1,4 @@
-package no.cantara.jau.mjauu;
+package no.cantara.jau.mjauu.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class UnZip {
         bos.close();
     }
 
-    void extract(File zipFile, File toDir) throws IOException {
+    public void extract(File zipFile, File toDir) throws IOException {
         String outputFolder = toDir.getPath();
         log.trace("Begin unzip "+ zipFile + " into "+outputFolder);
         ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile));

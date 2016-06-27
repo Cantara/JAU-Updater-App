@@ -1,5 +1,6 @@
 package no.cantara.jau.mjauu;
 
+import no.cantara.jau.mjauu.util.FileUtil;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
