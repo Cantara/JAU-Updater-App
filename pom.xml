@@ -10,7 +10,7 @@
     <parent>
         <groupId>no.cantara.emi</groupId>
         <artifactId>parent</artifactId>
-        <version>5</version>
+        <version>6</version>
     </parent>
 
     <scm>
@@ -43,7 +43,7 @@
         <dependency>
             <groupId>no.cantara.jau</groupId>
             <artifactId>configservice-sdk</artifactId>
-            <version>0.15</version>
+            <version>0.16.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.amazonaws</groupId>
