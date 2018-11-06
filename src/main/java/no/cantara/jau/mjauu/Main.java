@@ -57,7 +57,7 @@ public class Main {
         try {
             main = new Main();
             Client client = main.registerClientOnNewCS();
-            log.info("Continue with client {}", client);
+            log.info("Continue with client {}", client.clientId);
 
             main.customId = main.findCustomId(client);
 
