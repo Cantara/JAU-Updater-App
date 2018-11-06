@@ -7,7 +7,7 @@ A small application to do a controlled update of the Java Auto Updater applicati
 ### MJAUU Usage
 
 * Plan your update scenario and create/update the MJAU.json to fit your needs
-* Put yur configuration to your existing ConfigService by changing provisionMJAUtoCS to fit your needs and run the script
+* Put your configuration to your existing ConfigService by changing provisionMJAUtoCS to fit your needs and run the script
 * Sit back and watch magic happen
 
 ![En example flow of controlled JAU client update with MJAUU](https://raw.githubusercontent.com/Cantara/JAU-Updater-App/master/images/MJAUU%20update%20JAU%20process%20example.png) 
@@ -89,7 +89,7 @@ Thes settings will be set in a config JAU uses to launch MJAUU
 			"stopApplicationOnShutdown": "false",
 			"nextApplicationConfigId": "UUID/configId for application to be launched when jau is updated and restarted",
 			"mjauuApplicationConfigId": "UUID/configId for mjauu config",
-			"mjauu.version": "0.8-beta-5",
+			"mjauu.version": "java-auto-update-version e.g. '0.10.5'",
 			"http.useProxy": "true",
 			"http.proxyHost": "10.10.10.10",
 			"http.proxyPort": "8080",
@@ -102,3 +102,7 @@ Thes settings will be set in a config JAU uses to launch MJAUU
 	"startServiceScript": "cmd /c start-mjauu-0.8-alpha-10.bat"
 }
 ```
+
+### Things to be aware of
+- As MJAUU uses the [admin API of ConfigService CS](https://wiki.cantara.no/display/JAU/ConfigService+Admin+API), it needs admin credentials in the ApplicationConfig (`mjauu-override.properties`). You should rotate the admin password in CS after using MJAUU to update clients,
+as the admin credentials are now available for every client as well as in a ApplicationConfig
