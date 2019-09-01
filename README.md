@@ -2,7 +2,7 @@
 
 A small application to do a controlled update of the Java Auto Updater application itself
 
-![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Cantara/JAU-Updater-App) - [![Build Status](https://jenkins.quadim.ai/buildStatus/icon?job=JAU-Updater-App)](https://jenkins.quadim.ai/job/JAU-Updater-App/) [![Known Vulnerabilities](https://snyk.io/test/github/Cantara/JAU-Updater-App/badge.svg)](https://snyk.io/test/github/Cantara/JAU-Updater-App)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/Cantara/JAU-Updater-App)  [![Build Status](https://jenkins.quadim.ai/buildStatus/icon?job=JAU-Updater-App)](https://jenkins.quadim.ai/job/JAU-Updater-App/) [![Known Vulnerabilities](https://snyk.io/test/github/Cantara/JAU-Updater-App/badge.svg)](https://snyk.io/test/github/Cantara/JAU-Updater-App)
 
 ### MJAUU Usage
 
