@@ -29,7 +29,7 @@
         <dependency>
             <groupId>no.cantara.jau</groupId>
             <artifactId>configservice-sdk</artifactId>
-            <version>0.19.10</version>
+            <version>0.19.12</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.amazonaws</groupId>
